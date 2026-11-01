@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0] — 2026-11-01
+
+### Added
+- Logged-in username and permission level (Administrator / Standard User) displayed in banner — green when elevated, amber when not
+- Rotating quotes panel filling empty space on home screen — 38 quotes across cybersecurity, open source, hacking, and privacy; fades in/out with attribution
+
+### Improved
+- Banner tick rate reduced to 100ms (10fps) — smoother on lower-end hardware
+- Quotes widget tick rate reduced to 150ms (6fps) — lower CPU, visually identical
+- Nav buttons now fill full terminal width with `min-width: 0` and `overflow: hidden hidden` — no clipping at any terminal size
+- Info panel columns use fractional widths — dashboard scales with terminal width
+- Quotes widget given fixed 6-row height to guarantee visibility at all terminal sizes
+
+### Fixed
+- Worker thread context error (`LookupError: active_app`) — reverted to synchronous dashboard refresh which is stable across Textual versions
+
+---
+
 ## [1.1.0] — 2026-11-01
 
 ### Added
