@@ -11,7 +11,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Static
 
 from orbit.core.admin_check import is_elevated
-from orbit.core.hash_checker import HashStatus, load_manifest
+from orbit.core.hash_checker import load_manifest
 from orbit.core.platform_check import check_platform
 from orbit.core.secrets import SecretStore
 from orbit.core.tools import all_tools
