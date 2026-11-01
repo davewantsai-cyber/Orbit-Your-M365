@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
-  <img src="https://img.shields.io/badge/version-1.0.0-purple?style=flat-square" alt="Version 1.0.0">
+  <img src="https://img.shields.io/badge/version-1.2.0-purple?style=flat-square" alt="Version 1.2.0">
   <img src="https://img.shields.io/badge/telemetry-none-brightgreen?style=flat-square" alt="No telemetry">
   <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="Client-side">
 </p>
@@ -20,7 +20,7 @@
   Office 365 Risk & Baseline Intelligence Toolkit
   Author  : Reece Gabriel Dickson
   Role    : Independent Cybersecurity Research Analyst
-  Version : v1.0.0
+  Version : v1.2.0
 ```
 
 ORBIT is a **terminal application** with an animated TUI that orchestrates leading M365 security auditing tools, manages their credentials securely, runs them, normalises and scores every finding, and writes a **PDF / DOCX executive summary report** — all without your data ever leaving your machine.

@@ -34,14 +34,21 @@ Screen        { background: #04060a; }
 
 /* ── Info row: sys-info left, dashboard right ── */
 #info-row     { height: auto; width: 1fr; padding: 1 3 0 3; }
-#sys-info     { width: 26; color: #1a4a5a; }
-#dashboard    { width: 1fr; }
+#sys-info     { width: 1fr; min-width: 24; max-width: 36; color: #1a4a5a; }
+#dashboard    { width: 3fr; }
+
+/* ── Last run ── */
+#last-run     { width: 1fr; padding: 0 3; color: #1a3a4a; }
+
+/* ── Quotes ── */
+#quotes       { width: 1fr; height: 6; min-height: 4; }
 
 /* ── Nav bar ── */
-#nav          { height: 5; width: 1fr; padding: 1 2; }
+#nav          { height: 5; width: 1fr; padding: 1 2; overflow: hidden hidden; }
 Button        {
     width: 1fr;
-    margin: 0 1;
+    min-width: 0;
+    margin: 0 0;
     background: #080e18;
     border: tall #0d3a55;
     color: #2a6070;

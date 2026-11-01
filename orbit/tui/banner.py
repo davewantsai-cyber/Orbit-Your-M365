@@ -14,6 +14,7 @@ from rich.text import Text
 from textual.widget import Widget
 
 from orbit.config import AUTHOR, ROLE, VERSION, YEAR
+from orbit.core.admin_check import current_user, permission_level
 
 # ── Sun direction (upper-left, matches reference photo) ───────────────────────
 _sx, _sy, _sz = -0.45, -0.55, 0.70
@@ -73,14 +74,18 @@ class AnimatedBanner(Widget):
         self._f: int = 0
         self._ss: list[tuple[float, float, int]] = []
         self._cd: int = 0
-        self.set_interval(0.08, self._tick)
+        self._cached_size: tuple[int, int] = (0, 0)
+        self._static_layer: list[list[tuple[str, str]]] | None = None
+        self._clock_row: int = 0
+        self._left_end: int = 0
+        self.set_interval(0.10, self._tick)   # 10 fps — smooth and cheap
 
     def _tick(self) -> None:
         self._f += 1
         step = 3.5 / max(self.size.width or 120, 80)
         self._ss = [(x + step, y, n) for x, y, n in self._ss if x < 1.12]
         self._cd += 1
-        if self._cd >= 18 and len(self._ss) < 3:
+        if self._cd >= 15 and len(self._ss) < 3:
             if random.random() < 0.28:
                 self._ss.append((
                     random.uniform(0.42, 0.55),
@@ -292,20 +297,24 @@ class AnimatedBanner(Widget):
             p(tag_row, 2 + j, ch, "#1a4a5a")
 
         # Metadata rows
+        user = current_user()
+        perm_label, perm_col = permission_level()
         meta = [
-            ("Author  ", AUTHOR),
-            ("Version ", f"v{VERSION}"),
+            ("Author  ", AUTHOR,      "#2a6070"),
+            ("Version ", f"v{VERSION}", "#2a6070"),
+            ("User    ", user,         "#2a8070"),
+            ("Access  ", perm_label,   perm_col),
         ]
-        for mi, (label, val) in enumerate(meta):
+        for mi, (label, val, val_col) in enumerate(meta):
             mr = tag_row + 2 + mi
             for j, ch in enumerate((label + val)[:left_end - 3]):
-                col_c = "#0d3040" if j < len(label) else "#2a6070"
+                col_c = "#0d3040" if j < len(label) else val_col
                 p(mr, 2 + j, ch, col_c)
 
         # Live clock
         now = datetime.now(timezone.utc)
         clk = f"⏱  {now:%Y-%m-%d  %H:%M:%S} UTC"
-        clk_row = tag_row + 4
+        clk_row = tag_row + 6
         for j, ch in enumerate(clk[:left_end - 3]):
             p(clk_row, 2 + j, ch, "#0d4a22")
 
