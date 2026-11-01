@@ -1,160 +1,451 @@
 {
   "schema": 1,
-  "_note": "Indicative mapping of M365 control findings to related CVEs / NIST 800-53 controls. Associations are heuristic (the misconfiguration class relates to the CVE or control); they are not proof of exploitability. Verify before citing to a client. CVSS scores are base scores from NVD where recorded here.",
+  "_note": "Indicative mapping of M365 control findings to related CVEs and NIST 800-53 controls. Associations are heuristic — the misconfiguration class relates to the CVE or control; they are not proof of exploitability in any specific tenant. Verify before citing to a client. CVSS scores are NVD base scores.",
   "controls": [
     {
       "canonical": "LEGACY_AUTH",
       "title": "Legacy authentication not blocked",
-      "aliases": [
-        "MS.AAD.1.1",
-        "MT.1009"
-      ],
-      "cve_ids": [
-        "CVE-2019-1372"
-      ],
-      "nist_refs": [
-        "IA-2",
-        "AC-17"
-      ],
-      "severity_floor": null,
-      "cvss": {},
+      "aliases": ["MS.AAD.1.1", "MT.1009", "CIS-1.1"],
+      "cve_ids": ["CVE-2019-1372", "CVE-2019-1257"],
+      "nist_refs": ["IA-2", "AC-17"],
+      "severity_floor": "High",
+      "cvss": {"CVE-2019-1372": 9.8},
       "remediation": [
-        "Create a Conditional Access policy blocking legacy authentication protocols for all users.",
-        "Run in report-only mode first and review sign-in logs for legacy clients.",
-        "Migrate remaining legacy clients to modern authentication."
+        "Create a Conditional Access policy blocking all legacy authentication protocols for all users.",
+        "Run in report-only mode first and review sign-in logs for any remaining legacy clients.",
+        "Migrate remaining legacy clients (IMAP, POP3, Basic Auth) to modern authentication.",
+        "In Exchange Online, set-TransportConfig -AllowLegacyTLSClients $false."
       ]
     },
     {
       "canonical": "ADMIN_MFA",
       "title": "MFA not required for administrators",
-      "aliases": [
-        "MS.AAD.3.1",
-        "MT.1007"
-      ],
-      "cve_ids": [
-        "CVE-2022-21972"
-      ],
-      "nist_refs": [
-        "IA-2(1)"
-      ],
+      "aliases": ["MS.AAD.3.1", "MT.1007", "CIS-1.14"],
+      "cve_ids": ["CVE-2022-21972", "CVE-2022-21966"],
+      "nist_refs": ["IA-2(1)", "IA-2(2)"],
       "severity_floor": "Critical",
+      "cvss": {"CVE-2022-21972": 8.1},
+      "remediation": [
+        "Create a Conditional Access policy requiring MFA (phishing-resistant preferred) for all privileged directory roles.",
+        "Exclude only two monitored break-glass emergency access accounts from the policy.",
+        "Review role assignments monthly and remove standing Global Administrator access.",
+        "Enable Entra ID Protection sign-in risk policies alongside MFA."
+      ]
+    },
+    {
+      "canonical": "USER_MFA",
+      "title": "MFA not required for all users",
+      "aliases": ["MS.AAD.3.2", "MT.1008", "CIS-1.15"],
+      "cve_ids": ["CVE-2022-21972"],
+      "nist_refs": ["IA-2(1)"],
+      "severity_floor": "High",
       "cvss": {},
       "remediation": [
-        "Require MFA (ideally phishing-resistant) for all privileged directory roles via Conditional Access.",
-        "Exclude only two monitored break-glass accounts.",
-        "Review role assignments and remove standing Global Administrator access."
+        "Extend the MFA Conditional Access policy to cover all users, not just admins.",
+        "Use the SSPR and MFA combined registration experience.",
+        "Allow a grace period for user enrolment before enforcing."
+      ]
+    },
+    {
+      "canonical": "PHISHING_RESISTANT_MFA",
+      "title": "Phishing-resistant MFA not required for admins",
+      "aliases": ["MS.AAD.3.3", "MT.1060"],
+      "cve_ids": [],
+      "nist_refs": ["IA-2(1)", "IA-2(6)"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Configure Conditional Access to require Windows Hello for Business, FIDO2 security keys, or certificate-based authentication for all admin roles.",
+        "Exclude phishable MFA methods (SMS, voice) from admin authentication strength."
+      ]
+    },
+    {
+      "canonical": "CA_NOT_ENFORCED",
+      "title": "Conditional Access policies not enforced",
+      "aliases": ["MT.1006", "MS.AAD.2.1"],
+      "cve_ids": ["CVE-2022-21966"],
+      "nist_refs": ["AC-2", "AC-3"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Move report-only Conditional Access policies to enforced after validating impact in sign-in logs.",
+        "Adopt a baseline policy set: MFA for admins, MFA for all users, block legacy auth, require compliant device.",
+        "Test each policy in report-only mode for at least 72 hours before enforcing."
+      ]
+    },
+    {
+      "canonical": "PRIVILEGED_ROLES",
+      "title": "Excessive standing privileged role assignments",
+      "aliases": ["MS.AAD.7.1", "MT.1042", "CIS-1.21"],
+      "cve_ids": [],
+      "nist_refs": ["AC-2", "AC-6", "AC-6(5)"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Enable Privileged Identity Management (PIM) and convert standing role assignments to eligible.",
+        "Require approval and justification for role activation.",
+        "Set maximum activation duration to 8 hours or less.",
+        "Review all Global Administrator assignments — target fewer than 5 permanent GAs."
+      ]
+    },
+    {
+      "canonical": "GUEST_INVITE",
+      "title": "Guest invitations not restricted to admins",
+      "aliases": ["MS.AAD.8.1", "MT.1044", "CIS-1.10"],
+      "cve_ids": [],
+      "nist_refs": ["AC-2", "AC-3"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Set Guest invite settings to 'Only users assigned to specific admin roles can invite guest users'.",
+        "Configure cross-tenant access settings to restrict inbound collaboration.",
+        "Review existing guest accounts and remove stale or unnecessary access."
+      ]
+    },
+    {
+      "canonical": "SELF_SERVICE_PASSWORD_RESET",
+      "title": "Self-service password reset not configured securely",
+      "aliases": ["MS.AAD.6.1", "CIS-1.13"],
+      "cve_ids": [],
+      "nist_refs": ["IA-5"],
+      "severity_floor": "Low",
+      "cvss": {},
+      "remediation": [
+        "Enable SSPR with two authentication methods required.",
+        "Exclude phone/SMS as the only SSPR method — require app or email as secondary.",
+        "Monitor SSPR audit logs for suspicious activity."
+      ]
+    },
+    {
+      "canonical": "ENTRA_ID_PROTECTION",
+      "title": "Entra ID Identity Protection policies not configured",
+      "aliases": ["MS.AAD.2.1", "MT.1049"],
+      "cve_ids": [],
+      "nist_refs": ["SI-4", "AC-7"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Enable user risk policy: require password change when risk is High.",
+        "Enable sign-in risk policy: require MFA when risk is Medium or above.",
+        "Configure the combined security registration campaign."
       ]
     },
     {
       "canonical": "AUDIT_RETENTION",
       "title": "Audit log retention under one year",
-      "aliases": [
-        "MT.1010"
-      ],
+      "aliases": ["MT.1010", "MS.AAD.9.1", "CIS-3.1"],
       "cve_ids": [],
-      "nist_refs": [
-        "AU-11"
-      ],
-      "severity_floor": null,
+      "nist_refs": ["AU-11", "AU-6"],
+      "severity_floor": "Medium",
       "cvss": {},
       "remediation": [
-        "Extend unified audit log retention to at least 365 days (licence permitting).",
-        "Export logs to a SIEM or storage account for long-term retention."
+        "Extend unified audit log retention to at least 365 days (requires Purview Audit Standard or higher).",
+        "Export logs to a SIEM or Azure Storage Account for long-term retention and alerting.",
+        "Ensure audit logging is enabled for all workloads (Exchange, SharePoint, Teams, Entra)."
+      ]
+    },
+    {
+      "canonical": "AUDIT_LOGGING_DISABLED",
+      "title": "Audit logging disabled for one or more workloads",
+      "aliases": ["MT.1011", "CIS-3.2"],
+      "cve_ids": [],
+      "nist_refs": ["AU-2", "AU-12"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Enable unified audit log in the Microsoft Purview compliance portal.",
+        "Verify all workloads are logging: Exchange, SharePoint, OneDrive, Teams, Entra ID.",
+        "Set-AdminAuditLogConfig -UnifiedAuditLogIngestionEnabled $true"
       ]
     },
     {
       "canonical": "EXT_FORWARDING",
       "title": "External email forwarding allowed",
-      "aliases": [
-        "MS.EXO.1.1"
-      ],
-      "cve_ids": [
-        "CVE-2023-23397"
-      ],
-      "nist_refs": [
-        "AC-4",
-        "SC-7"
-      ],
-      "severity_floor": null,
-      "cvss": {
-        "CVE-2023-23397": 9.8
-      },
+      "aliases": ["MS.EXO.1.1", "CIS-6.2"],
+      "cve_ids": ["CVE-2023-23397"],
+      "nist_refs": ["AC-4", "SC-7"],
+      "severity_floor": "High",
+      "cvss": {"CVE-2023-23397": 9.8},
       "remediation": [
-        "Disable automatic external forwarding in the outbound spam filter policy.",
-        "Remove remote-domain AutoForwardEnabled settings.",
-        "Alert on new inbox rules that forward externally."
+        "Disable automatic external forwarding in the outbound spam filter policy (AutoForwardingMode: Off).",
+        "Set remote domain AutoForwardEnabled to False for all remote domains.",
+        "Create a mail flow rule to block or alert on automatic external forwarding.",
+        "Alert on new inbox rules that forward or redirect externally."
       ]
     },
     {
-      "canonical": "PHS_NO_PTA",
-      "title": "Password hash sync without pass-through authentication",
-      "aliases": [
-        "MT.1021"
-      ],
+      "canonical": "SAFE_LINKS",
+      "title": "Safe Links not enabled or misconfigured",
+      "aliases": ["MS.DEFENDER.1.1", "CIS-2.3"],
       "cve_ids": [],
-      "nist_refs": [
-        "IA-5"
-      ],
-      "severity_floor": null,
+      "nist_refs": ["SI-3", "SC-18"],
+      "severity_floor": "Medium",
       "cvss": {},
       "remediation": [
-        "Evaluate pass-through authentication or federation alongside password hash sync.",
-        "Enable leaked-credential detection in Entra ID Protection."
+        "Enable Safe Links policy for all users covering email, Office apps, and Teams.",
+        "Enable 'Do not allow users to click through to the original URL'.",
+        "Enable 'Track user clicks' and review reports monthly."
       ]
     },
     {
-      "canonical": "CA_NOT_ENFORCED",
-      "title": "Conditional access not enforced",
-      "aliases": [
-        "MT.1006"
-      ],
-      "cve_ids": [
-        "CVE-2022-21966"
-      ],
-      "nist_refs": [
-        "AC-2",
-        "AC-3"
-      ],
-      "severity_floor": null,
+      "canonical": "SAFE_ATTACHMENTS",
+      "title": "Safe Attachments not enabled or misconfigured",
+      "aliases": ["MS.DEFENDER.2.1", "CIS-2.4"],
+      "cve_ids": [],
+      "nist_refs": ["SI-3"],
+      "severity_floor": "Medium",
       "cvss": {},
       "remediation": [
-        "Move report-only Conditional Access policies to enforced after validating impact.",
-        "Adopt a baseline policy set (MFA, device compliance, legacy auth block)."
+        "Enable Safe Attachments policy for all users in Dynamic Delivery or Block mode.",
+        "Enable Safe Attachments for SharePoint, OneDrive, and Teams.",
+        "Set-AtpPolicyForO365 -EnableATPForSPOTeamsODB $true"
+      ]
+    },
+    {
+      "canonical": "ANTI_PHISHING",
+      "title": "Anti-phishing policy not configured",
+      "aliases": ["MS.DEFENDER.3.1", "CIS-2.5"],
+      "cve_ids": [],
+      "nist_refs": ["SI-8"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Create an anti-phishing policy with impersonation protection for key users and domains.",
+        "Enable mailbox intelligence and intelligence-based impersonation protection.",
+        "Set phishing threshold to Aggressive (4) for high-risk environments.",
+        "Configure spoof intelligence and honour DMARC policy."
+      ]
+    },
+    {
+      "canonical": "DMARC",
+      "title": "DMARC policy not configured or not enforcing",
+      "aliases": ["MS.EXO.4.1", "MS.EXO.4.2", "CIS-6.4"],
+      "cve_ids": [],
+      "nist_refs": ["SI-8", "SC-8"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Publish a DMARC record with p=quarantine as minimum; progress to p=reject.",
+        "Ensure SPF and DKIM are configured before enforcing DMARC.",
+        "Set up DMARC aggregate (rua) reports to monitor authentication failures.",
+        "Progress from p=none → p=quarantine → p=reject over 90 days."
+      ]
+    },
+    {
+      "canonical": "DKIM",
+      "title": "DKIM not enabled",
+      "aliases": ["MS.EXO.3.1", "CIS-6.3"],
+      "cve_ids": [],
+      "nist_refs": ["SC-8", "SI-8"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Enable DKIM signing for all accepted domains in Exchange Online.",
+        "Use 2048-bit keys where supported.",
+        "Verify DKIM records are published in DNS for each domain."
+      ]
+    },
+    {
+      "canonical": "SPF",
+      "title": "SPF record missing or misconfigured",
+      "aliases": ["MS.EXO.2.1", "CIS-6.1"],
+      "cve_ids": [],
+      "nist_refs": ["SC-8", "SI-8"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Publish an SPF record for every sending domain: v=spf1 include:spf.protection.outlook.com -all",
+        "Use -all (fail) not ~all (softfail).",
+        "Keep SPF record under 10 DNS lookups."
       ]
     },
     {
       "canonical": "SPO_EXT_SHARING",
       "title": "SharePoint external sharing unrestricted",
-      "aliases": [
-        "MS.SHAREPOINT.1.1"
-      ],
+      "aliases": ["MS.SHAREPOINT.1.1", "CIS-7.2"],
       "cve_ids": [],
-      "nist_refs": [
-        "AC-3"
-      ],
-      "severity_floor": null,
+      "nist_refs": ["AC-3", "AC-21"],
+      "severity_floor": "High",
       "cvss": {},
       "remediation": [
-        "Restrict tenant sharing to 'New and existing guests' or tighter.",
-        "Limit sharing to approved domains.",
-        "Set default link type to specific people."
+        "Restrict tenant sharing level to 'New and existing guests' or 'Only people in your organisation'.",
+        "Limit external sharing to approved domains using the allow-list.",
+        "Set default sharing link type to 'Specific people' and default permission to View.",
+        "Require guests to authenticate before accessing shared content."
+      ]
+    },
+    {
+      "canonical": "SPO_EXPIRY",
+      "title": "SharePoint guest access expiry not configured",
+      "aliases": ["MS.SHAREPOINT.2.1", "CIS-7.3"],
+      "cve_ids": [],
+      "nist_refs": ["AC-2(3)", "AC-3"],
+      "severity_floor": "Low",
+      "cvss": {},
+      "remediation": [
+        "Set guest access expiry to 30 days or less.",
+        "Enable email reminders before guest access expires.",
+        "Review existing guest access permissions quarterly."
       ]
     },
     {
       "canonical": "TEAMS_EXT_ACCESS",
       "title": "Teams external access unrestricted",
-      "aliases": [
-        "MS.TEAMS.1.1"
-      ],
+      "aliases": ["MS.TEAMS.1.1", "CIS-8.1"],
       "cve_ids": [],
-      "nist_refs": [
-        "AC-17"
-      ],
-      "severity_floor": null,
+      "nist_refs": ["AC-17", "AC-3"],
+      "severity_floor": "Medium",
       "cvss": {},
       "remediation": [
-        "Restrict external access to an allow-list of trusted domains.",
-        "Disable consumer Teams/Skype federation unless required."
+        "Restrict Teams external access to an allow-list of trusted domains only.",
+        "Disable Teams federation with consumer Skype accounts unless specifically required.",
+        "Review Teams external access policy and apply the most restrictive setting appropriate."
+      ]
+    },
+    {
+      "canonical": "TEAMS_MEETING_SECURITY",
+      "title": "Teams meeting security settings insufficiently restrictive",
+      "aliases": ["MS.TEAMS.2.1", "MS.TEAMS.2.2", "CIS-8.2"],
+      "cve_ids": [],
+      "nist_refs": ["AC-17", "AC-3"],
+      "severity_floor": "Low",
+      "cvss": {},
+      "remediation": [
+        "Set lobby bypass to 'People in my organisation' — anonymous users should wait in lobby.",
+        "Disable anonymous users from joining meetings without being admitted.",
+        "Prevent external participants from giving or requesting control.",
+        "Disable dial-in users from bypassing the lobby."
+      ]
+    },
+    {
+      "canonical": "POWER_PLATFORM_DLP",
+      "title": "Power Platform DLP policies not configured",
+      "aliases": ["MS.POWERPLATFORM.1.1", "CIS-9.1"],
+      "cve_ids": [],
+      "nist_refs": ["AC-4", "SC-7"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Create at least one tenant-wide DLP policy in Power Platform admin centre.",
+        "Block high-risk connectors (social media, personal storage) from mixing with business data.",
+        "Classify connectors as Business, Non-Business, or Blocked.",
+        "Apply stricter DLP policies to environments containing sensitive data."
+      ]
+    },
+    {
+      "canonical": "POWER_PLATFORM_CONNECTORS",
+      "title": "Power Platform tenant isolation not enabled",
+      "aliases": ["MS.POWERPLATFORM.2.1"],
+      "cve_ids": [],
+      "nist_refs": ["AC-4", "SC-7"],
+      "severity_floor": "Low",
+      "cvss": {},
+      "remediation": [
+        "Enable tenant isolation to prevent connectors from connecting to external tenants.",
+        "Use an allowlist of trusted tenants if cross-tenant connections are required."
+      ]
+    },
+    {
+      "canonical": "INTUNE_DEVICE_COMPLIANCE",
+      "title": "Device compliance policies not enforced via Conditional Access",
+      "aliases": ["MT.1055", "CIS-5.1"],
+      "cve_ids": [],
+      "nist_refs": ["CM-2", "AC-19"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Create Intune compliance policies for Windows, iOS, Android, and macOS.",
+        "Create a Conditional Access policy requiring a compliant device for all cloud apps.",
+        "Enable device enrolment for all user-owned and corporate devices.",
+        "Mark devices without a compliance policy as non-compliant."
+      ]
+    },
+    {
+      "canonical": "PHS_NO_PTA",
+      "title": "Password hash sync without pass-through authentication",
+      "aliases": ["MT.1021"],
+      "cve_ids": [],
+      "nist_refs": ["IA-5"],
+      "severity_floor": "Low",
+      "cvss": {},
+      "remediation": [
+        "Evaluate pass-through authentication or federation alongside password hash sync for on-premises policy enforcement.",
+        "Enable Entra ID Protection leaked-credential detection regardless of sync method.",
+        "Ensure seamless SSO is configured if using PTA."
+      ]
+    },
+    {
+      "canonical": "GLOBAL_ADMIN_COUNT",
+      "title": "Too many Global Administrator accounts",
+      "aliases": ["MS.AAD.7.2", "MT.1041", "CIS-1.22"],
+      "cve_ids": [],
+      "nist_refs": ["AC-6", "AC-6(5)"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Reduce Global Administrator count to 2–4 accounts maximum.",
+        "Assign least-privilege roles (e.g. Exchange Admin, User Admin) where GA is not needed.",
+        "Enable PIM for all remaining GA assignments.",
+        "Maintain two break-glass emergency access accounts excluded from Conditional Access."
+      ]
+    },
+    {
+      "canonical": "CLOUD_ONLY_ADMIN",
+      "title": "Admin accounts are not cloud-only accounts",
+      "aliases": ["MS.AAD.7.3", "MT.1043"],
+      "cve_ids": [],
+      "nist_refs": ["AC-6", "IA-2"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Create cloud-only accounts for all privileged role assignments.",
+        "Do not sync on-premises admin accounts to Entra ID with privileged roles.",
+        "Enforce device compliance and phishing-resistant MFA on cloud admin accounts."
+      ]
+    },
+    {
+      "canonical": "BREAK_GLASS_ACCOUNTS",
+      "title": "Emergency access (break-glass) accounts not configured",
+      "aliases": ["MS.AAD.7.4", "MT.1040"],
+      "cve_ids": [],
+      "nist_refs": ["CP-2", "AC-2"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Create two emergency access accounts with Global Administrator role.",
+        "Exclude break-glass accounts from all Conditional Access policies.",
+        "Secure with long random passwords stored in a physical safe, not a password manager.",
+        "Monitor break-glass accounts with alerts on any sign-in activity.",
+        "Test access quarterly without disrupting the monitoring alert."
+      ]
+    },
+    {
+      "canonical": "APP_CONSENT",
+      "title": "User consent for applications not restricted",
+      "aliases": ["MS.AAD.5.1", "MT.1035", "CIS-1.11"],
+      "cve_ids": [],
+      "nist_refs": ["AC-3", "CM-7"],
+      "severity_floor": "High",
+      "cvss": {},
+      "remediation": [
+        "Set user consent to 'Do not allow user consent' or restrict to low-risk verified publisher permissions.",
+        "Enable admin consent workflow so users can request access through an approval process.",
+        "Review existing OAuth app grants for excessive permissions."
+      ]
+    },
+    {
+      "canonical": "OAUTH_APP_REVIEW",
+      "title": "Third-party OAuth applications not reviewed",
+      "aliases": ["MS.AAD.5.2", "MT.1036"],
+      "cve_ids": [],
+      "nist_refs": ["AC-3", "CM-7"],
+      "severity_floor": "Medium",
+      "cvss": {},
+      "remediation": [
+        "Review all app registrations and enterprise applications with delegated or application permissions.",
+        "Remove applications no longer in use.",
+        "Flag applications with Mail.Read, Contacts.Read, Files.ReadWrite.All, or similar broad permissions for review.",
+        "Enable Defender for Cloud Apps to monitor OAuth app behaviour."
       ]
     }
   ]

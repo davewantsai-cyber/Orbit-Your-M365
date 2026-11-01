@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import asyncio
+import tempfile
+from pathlib import Path
 
 from textual import work
 from textual.app import ComposeResult
@@ -9,12 +11,16 @@ from textual.containers import Horizontal
 from textual.screen import Screen
 from textual.widgets import Button, Checkbox, Collapsible, Footer, ProgressBar, RichLog, Static
 
+from orbit.core import config_store, emailer, notify
 from orbit.core.hash_checker import check_tool
 from orbit.core.outputs import make_run_folder
 from orbit.core.pipeline import finalize
 from orbit.core.runner import Runner, RunStatus, ToolRun
 from orbit.core.secrets import SecretStore
 from orbit.core.tools import all_tools
+from orbit.reporting import scorer
+from orbit.reporting.context import ReportContext
+from orbit.reporting.pdf_report import generate_pdf
 
 STATUS_STYLE = {RunStatus.PENDING: "dim", RunStatus.RUNNING: "cyan", RunStatus.COMPLETE: "green",
                 RunStatus.FAILED: "red", RunStatus.SKIPPED: "yellow"}
@@ -38,6 +44,8 @@ class RunScreen(Screen):
         mode = "[red](DRY RUN)[/red] " if self.app.state.dry_run else ""
         yield Static(f"[bold cyan]Run[/bold cyan] {mode}")
         yield Checkbox("Override hash-check mismatch (I accept the risk)", id="override")
+        yield Checkbox("Email results when complete", id="email-run",
+                       value=config_store.load()["notifications"]["email_notify"])
         with Horizontal():
             yield Button("Start", id="start", variant="success")
             yield Button("Stop all", id="stop-all", variant="error")
@@ -48,6 +56,7 @@ class RunScreen(Screen):
                 yield Button(f"Stop {t.display}", id=f"stop-{t.name}")
                 yield RichLog(id=f"log-{t.name}", markup=False, wrap=True)
         yield Static("", id="result")
+        yield Static("", id="email-status")
         yield Footer()
 
     def _update(self, run: ToolRun) -> None:
@@ -61,6 +70,23 @@ class RunScreen(Screen):
         for line in run.log[shown:]:
             log.write(line)
         log._shown = len(run.log)  # type: ignore[attr-defined]
+
+    def _email(self, findings, written: list[Path], tools) -> bool:
+        """Send the summary PDF (generated into a temp dir if PDF output is off). Never raises."""
+        st = self.app.state
+        try:
+            settings = emailer.load_settings(config_store.load(), SecretStore(st.passphrase))
+            if not settings.configured:
+                return False
+            ctx = ReportContext(findings, [t.display for t in tools], dry_run=st.dry_run,
+                                client=st.client_name.strip() or "Confidential")
+            pdf = next((p for p in written if p.suffix == ".pdf" and p.exists()), None)
+            if pdf:
+                return emailer.send_results(ctx, pdf, settings)
+            with tempfile.TemporaryDirectory() as tmp:
+                return emailer.send_results(ctx, generate_pdf(ctx, Path(tmp)), settings)
+        except Exception:
+            return False
 
     @work(exclusive=True)
     async def start_run(self) -> None:
@@ -85,10 +111,17 @@ class RunScreen(Screen):
                              on_update=self._update)
         st.runs = await self.runner.run_all(tools)
         findings, written = await asyncio.to_thread(
-            finalize, st.run_folder, [t.display for t in tools], st.output, st.dry_run, st.passphrase)
+            finalize, st.run_folder, [t.display for t in tools], st.output, st.dry_run, st.passphrase,
+            st.client_name)
         self.query_one("#result", Static).update(
             f"[green]Done.[/green] {len(findings)} controls. Output: {st.run_folder}\n"
             + "\n".join(str(p) for p in written))
+        score = round(scorer.summarize(findings).posture)
+        await asyncio.to_thread(notify.notify_complete, score)
+        if self.query_one("#email-run", Checkbox).value:
+            ok = await asyncio.to_thread(self._email, findings, written, tools)
+            self.query_one("#email-status", Static).update(
+                "[green]Email sent ✓[/green]" if ok else "[red]Email failed ✗[/red]")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         bid = event.button.id or ""

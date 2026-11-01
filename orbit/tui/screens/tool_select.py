@@ -21,3 +21,4 @@ class ToolSelectScreen(Screen):
         name = (event.checkbox.id or "").removeprefix("sel-")
         sel = self.app.state.selected
         sel.add(name) if event.value else sel.discard(name)
+        self.app.save_config()

@@ -48,7 +48,7 @@ async def test_tui_launches_dry_run():
         await pilot.pause()
         assert type(app.screen).__name__ == "HomeScreen"
         assert app.state.dry_run
-        for target in ("credentials", "tool_select", "output", "installer", "run", "report"):
+        for target in ("credentials", "tool_select", "output", "installer", "email", "run", "report"):
             app.push_screen(target)
             await pilot.pause()
             assert target.replace("_", "") in type(app.screen).__name__.lower()

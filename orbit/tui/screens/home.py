@@ -47,11 +47,12 @@ class HomeScreen(Screen):
         with Horizontal(id="info-row"):
             yield Static("", id="sys-info")
             yield Static("", id="dashboard")
+        yield Static("", id="last-run")
         with Horizontal(id="nav"):
             for label, target in [
                 ("Credentials", "credentials"), ("Tools", "tool_select"),
                 ("Installer", "installer"), ("Output", "output"),
-                ("Run", "run"), ("Report", "report"),
+                ("Email", "email"), ("Run", "run"), ("Report", "report"),
             ]:
                 yield Button(label, id=f"nav-{target}")
         yield Footer()
@@ -78,6 +79,11 @@ class HomeScreen(Screen):
         from orbit.core.tools import all_tools
         tbl = _tool_table(all_tools())
         self.query_one("#dashboard", Static).update(tbl)
+        from orbit.core import history
+        self.query_one("#last-run", Static).update(history.last_run_markup())
+
+    def on_screen_resume(self) -> None:
+        self._refresh_dashboard()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         target = (event.button.id or "").removeprefix("nav-")

@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -51,3 +52,20 @@ def test_real_run_filenames(tmp_path):
     c = ReportContext([], [], dry_run=False)
     assert generate_docx(c, tmp_path).name == "ORBIT_Summary.docx"
     assert generate_pdf(c, tmp_path, use_unicode=False).name == "ORBIT_Summary.pdf"
+
+
+def test_client_name_on_cover(ctx, tmp_path):
+    ctx.client = "Acme Ltd"
+    d = Document(str(generate_docx(ctx, tmp_path)))
+    assert "Acme Ltd" in "\n".join(x.text for x in d.paragraphs)
+    assert b"Acme Ltd" in generate_pdf(ctx, tmp_path, use_unicode=False).read_bytes()
+
+
+def test_blank_client_defaults_to_confidential(tmp_path):
+    from orbit.core.outputs import OutputConfig
+    from orbit.core.pipeline import finalize
+    shutil.copy(FIX / "scubagear_sample.json", tmp_path / "scubagear_sample.json")
+    cfg = OutputConfig(base_dir=tmp_path, formats={"PDF", "DOCX"})
+    _, written = finalize(tmp_path, ["ScubaGear"], cfg, True, client="  ")
+    docx = next(p for p in written if p.suffix == ".docx")
+    assert "Client: Confidential" in "\n".join(x.text for x in Document(str(docx)).paragraphs)

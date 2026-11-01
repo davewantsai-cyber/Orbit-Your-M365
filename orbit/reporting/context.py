@@ -28,6 +28,11 @@ class ReportContext:
         self.sorted = scorer.sort_findings(self.findings)
 
     @property
+    def client_label(self) -> str:
+        """Client name for history records ('' when unset or the cover placeholder)."""
+        return "" if self.client in ("Confidential", "[Client Name]") else self.client
+
+    @property
     def title(self) -> str:
         return "ORBIT Assessment Summary" + (" (DRY RUN)" if self.dry_run else "")
 

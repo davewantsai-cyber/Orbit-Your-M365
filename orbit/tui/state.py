@@ -17,3 +17,4 @@ class SessionState:
     run_folder: Path | None = None
     runs: dict[str, ToolRun] = field(default_factory=dict)
     hash_override: bool = False
+    client_name: str = ""

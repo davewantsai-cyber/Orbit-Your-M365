@@ -20,6 +20,7 @@ dependencies = [
     "jinja2>=3.1",
     "click>=8.1",
     "tomli>=2.0; python_version < '3.11'",
+    "plyer>=2.1",
 ]
 
 [project.optional-dependencies]

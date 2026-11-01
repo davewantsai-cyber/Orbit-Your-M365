@@ -1,9 +1,15 @@
 """Main Textual application."""
 from __future__ import annotations
 
+from pathlib import Path
+
 from textual.app import App
 
+from orbit.core import config_store
+from orbit.core.outputs import FORMATS
+
 from orbit.tui.screens.credentials import CredentialsScreen
+from orbit.tui.screens.email_config import EmailConfigScreen
 from orbit.tui.screens.home import HomeScreen
 from orbit.tui.screens.installer import InstallerScreen
 from orbit.tui.screens.output import OutputScreen
@@ -54,13 +60,35 @@ class OrbitApp(App):
     SCREENS = {
         "credentials": CredentialsScreen, "tool_select": ToolSelectScreen,
         "installer": InstallerScreen, "output": OutputScreen,
-        "run": RunScreen, "report": ReportScreen,
+        "run": RunScreen, "report": ReportScreen, "email": EmailConfigScreen,
     }
 
     def __init__(self, dry_run: bool = False) -> None:
         super().__init__()
         self.state = SessionState(dry_run=dry_run)
         self.sub_title = "DRY RUN" if dry_run else ""
+        self._load_config()
+
+    def _load_config(self) -> None:
+        cfg = config_store.load()
+        out = self.state.output
+        if cfg["output"]["directory"]:
+            out.base_dir = Path(cfg["output"]["directory"])
+        if cfg["output"]["formats"]:
+            out.formats = {f.upper() for f in cfg["output"]["formats"]} & set(FORMATS)
+        self.state.selected = set(cfg["tools"]["selected"])
+
+    def save_config(self) -> None:
+        """Persist remembered output + tool settings (best-effort)."""
+        out = self.state.output
+        try:
+            cfg = config_store.load()
+            cfg["output"]["directory"] = str(out.base_dir)
+            cfg["output"]["formats"] = sorted(f.lower() for f in out.formats)
+            cfg["tools"]["selected"] = sorted(self.state.selected)
+            config_store.save(cfg)
+        except OSError:
+            pass
 
     def on_mount(self) -> None:
         self.push_screen(HomeScreen())

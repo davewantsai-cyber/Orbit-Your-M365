@@ -20,6 +20,8 @@ class OutputScreen(Screen):
         with Horizontal():
             yield Input(str(cfg.base_dir), id="out-dir")
             yield Button("Browse", id="browse")
+        yield Static("Client name (for report cover)")
+        yield Input(self.app.state.client_name, placeholder="Confidential", id="client-name")
         yield Static("[dim]A timestamped subfolder output/YYYY-MM-DD_HH-MM/ is created per run.[/dim]")
         for f in FORMATS:
             label = f"{f} (ORBIT summary)" if f in ("PDF", "DOCX") else f"{f} (native tool output)"
@@ -40,6 +42,9 @@ class OutputScreen(Screen):
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "out-dir":
             self.app.state.output.base_dir = Path(event.value or "output")
+            self.app.save_config()
+        elif event.input.id == "client-name":
+            self.app.state.client_name = event.value.strip()
         elif event.input.id == "passphrase":
             self.app.state.passphrase = event.value or None
 
@@ -52,3 +57,5 @@ class OutputScreen(Screen):
             cfg.encrypt = event.value
         elif cid == "keep":
             cfg.keep_unencrypted = event.value
+        if cid.startswith("fmt-"):
+            self.app.save_config()
