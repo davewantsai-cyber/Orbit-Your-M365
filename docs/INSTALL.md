@@ -159,6 +159,24 @@ pip install roadrecon
 
 ---
 
+## Tool integrity setup (required before first real run)
+
+After installing tools you must record their SHA-256 hashes so ORBIT can verify them before each run. **Without this step, ORBIT will block every tool with "BLOCKED: integrity unverified".**
+
+With your venv active, from the project root:
+
+```bash
+python scripts/generate_hashes.py
+```
+
+The script finds each installed tool's directory, hashes every file, and writes the results into `data/tool_hashes.json`. Run it again any time you update a tool.
+
+Confirm it worked by opening ORBIT's **Pre-flight** screen — the "Tool integrity manifest" row should show ✓ green.
+
+> **Dry-run mode** (`--dry-run`) does not require this step — it uses fixture data only.
+
+---
+
 ## Testing without a tenant
 
 See the [Testing section in README.md](../README.md#how-to-test-without-a-work-tenant) for options including dry-run mode, the M365 E5 30-day trial, and the Microsoft 365 Developer Program sandbox.

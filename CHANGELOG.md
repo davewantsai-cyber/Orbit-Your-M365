@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.5.0] — 2026-11-01
+
+### Security fixes (Critical)
+- **ZIP Slip patched** — `decrypt_archive` now filters every ZIP member path before extraction; entries containing `..` or absolute paths are silently skipped. Previously a crafted `.orbit.zip` could write files outside the target directory. (`orbit/security/encryption.py`)
+- **Jinja2 SSTI eliminated** — DOCX finding fields are no longer rendered through Jinja2 templates. `finding.txt.j2` has been replaced with a plain Python function. Previously a crafted tool output containing a Jinja2 expression in a control ID field could execute arbitrary Python in the ORBIT process. (`orbit/reporting/docx_report.py`)
+- **Tool integrity gate now enforced** — `HashStatus.UNVERIFIED` (empty manifest entry) now blocks a real run, the same as `MISMATCH`. Previously all tools passed the hash gate unconditionally because the manifest was empty. Users must populate `data/tool_hashes.json` before running against a real tenant — see the new **[Tool integrity setup](#tool-integrity-setup)** section in README and `docs/INSTALL.md`.
+
+### Added
+- **`scripts/generate_hashes.py`** — helper script to populate `data/tool_hashes.json` from your installed tools. Run once after installing each tool; re-run after any update. See [Tool integrity setup](#tool-integrity-setup).
+- **Pre-flight integrity warning** — preflight screen now includes a ⚠ amber check for the hash manifest. Shows "NOT CONFIGURED" when the manifest is unpopulated so users see this *before* hitting a blocked run.
+- **Amber warning state in preflight** — preflight rows now have three states: ✓ green (pass), ⚠ amber (warning / action required), ✗ red (hard fail).
+
+### Tests
+- 80 passing (up from 77)
+- `test_zip_slip_is_blocked` — verifies traversal entries are skipped by `decrypt_archive`
+- `test_ssti_not_evaluated` — verifies Jinja2 expressions in finding fields are rendered literally
+- `test_unverified_blocks_run` — verifies `UNVERIFIED` hash status blocks execution
+
+---
+
 ## [1.4.0] — 2026-11-01
 
 ### Added

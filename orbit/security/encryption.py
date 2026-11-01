@@ -64,4 +64,8 @@ def decrypt_archive(archive: Path, passphrase: str, out_dir: Path,
                     iterations: int = ITERATIONS) -> None:
     data = decrypt_bytes(archive.read_bytes(), passphrase, iterations)
     with zipfile.ZipFile(io.BytesIO(data)) as zf:
-        zf.extractall(out_dir)
+        for member in zf.infolist():
+            name = member.filename.replace("\\", "/")
+            if os.path.isabs(name) or ".." in name.split("/"):
+                continue
+            zf.extract(member, out_dir)

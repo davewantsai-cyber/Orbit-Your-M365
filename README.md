@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
-  <img src="https://img.shields.io/badge/version-1.4.0-purple?style=flat-square" alt="Version 1.4.0">
+  <img src="https://img.shields.io/badge/version-1.5.0-purple?style=flat-square" alt="Version 1.5.0">
   <img src="https://img.shields.io/badge/telemetry-none-brightgreen?style=flat-square" alt="No telemetry">
   <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="Client-side">
 </p>
@@ -20,7 +20,7 @@
   Office 365 Risk & Baseline Intelligence Toolkit
   Author  : Reece Gabriel Dickson
   Role    : Independent Cybersecurity Research Analyst
-  Version : v1.4.0
+  Version : v1.5.0
 ```
 
 ORBIT is a **terminal application** with an animated TUI that orchestrates leading M365 security auditing tools, manages their credentials securely, runs them, normalises and scores every finding, and writes a **PDF / DOCX executive summary report** — all without your data ever leaving your machine.
@@ -35,6 +35,7 @@ What normally takes a skilled analyst **4–8 hours** of manual portal work and 
 - [Tools Integrated](#tools-integrated)
 - [Quickstart](#quickstart)
 - [Installation](#installation)
+- [Tool Integrity Setup](#tool-integrity-setup)
 - [How to Test Without a Work Tenant](#how-to-test-without-a-work-tenant)
 - [Usage Walkthrough](#usage-walkthrough)
 - [Output and Reports](#output-and-reports)
@@ -51,7 +52,7 @@ What normally takes a skilled analyst **4–8 hours** of manual portal work and 
 
 1. **Pre-flight checks** — before any run, verifies admin rights, PowerShell version, OPA binary, tool installs, credentials, and output folder writability. Local only — no network calls.
 2. **Stores credentials securely** — Tenant ID, App ID, and client secrets go into your OS keychain (Windows Credential Manager / macOS Keychain / libsecret). Never written in plaintext. Never in process arguments visible to `ps`.
-3. **Verifies tool integrity** — SHA-256 hash check against a bundled manifest before any tool is launched. A mismatch is a hard stop.
+3. **Verifies tool integrity** — SHA-256 hash check against a bundled manifest before any tool is launched. A mismatch or unverified tool is a hard stop. **You must populate `data/tool_hashes.json` after installing tools** — see [Tool integrity setup](#tool-integrity-setup).
 4. **Installs / updates tools** — one screen to install ScubaGear, Maester, Monkey365, ROADtools, and Hawk with per-tool status, version, Install/Update/Remove buttons.
 5. **Runs selected tools** — async subprocess launcher with live streaming logs and per-tool progress. Tools are stopped cleanly on cancel.
 6. **Parses and normalises output** — JSON and CSV from ScubaGear, Maester, and Monkey365 unified into a single `Finding` model with severity, control ID, CVE references, and remediation text.
@@ -103,9 +104,11 @@ pytest tests/ -v
 # Launch in dry-run mode (auto-resizes terminal to 140×43, full TUI, no M365 tenant needed)
 python launch.py --dry-run
 
-# Real run (see Installation for prerequisites)
+# Real run — requires tool integrity setup first (see below)
 python launch.py
 ```
+
+> **Before your first real run:** you must install tools via the Installer screen, then run `python scripts/generate_hashes.py` to record their SHA-256 hashes. ORBIT will block any unverified tool. See [Tool integrity setup](#tool-integrity-setup).
 
 ---
 
@@ -159,6 +162,57 @@ python orbit.py --help
 ```
 
 See [docs/INSTALL.md](docs/INSTALL.md) for detailed step-by-step instructions.
+
+---
+
+## Tool Integrity Setup
+
+> **Required before any real run.** Dry-run mode is unaffected.
+
+ORBIT verifies the SHA-256 hashes of every installed tool's files before launching them. This guards against tampered or unexpected tool versions running against your tenant. The manifest ships empty — you populate it from your own trusted install.
+
+### Why you need to do this
+
+The hash manifest (`data/tool_hashes.json`) records the expected file hashes for each tool at each version. Until it contains an entry for your installed version, ORBIT treats the tool as **unverified** and blocks the run. The pre-flight screen will show a ⚠ amber warning and the Run screen will skip the tool with "BLOCKED: integrity unverified".
+
+This is intentional: running an unverified tool against a production tenant is a security risk.
+
+### Step-by-step
+
+**1. Install your tools** (via ORBIT's Installer screen or manually — see [Installation](#installation))
+
+**2. Run the hash generator** from the project root, with your venv active:
+
+```bash
+python scripts/generate_hashes.py
+```
+
+This scans your installed PowerShell modules and ROADtools, computes SHA-256 hashes for every file, and writes them into `data/tool_hashes.json`. Output looks like:
+
+```
+Scanning ScubaGear v1.4.0 ...  ✓ 312 files hashed
+Scanning Maester v0.4.3 ...    ✓ 89 files hashed
+Scanning Monkey365 v1.0.9 ...  ✓ 204 files hashed
+Scanning Hawk v3.2.1 ...       ✓ 57 files hashed
+Scanning roadrecon v0.12.3 ... ✓ 14 files hashed
+Manifest written to data/tool_hashes.json
+```
+
+**3. Re-run after any tool update**
+
+If you update a tool (via the Installer screen or manually), re-run `generate_hashes.py`. ORBIT will block the updated tool until the manifest is refreshed — this is by design.
+
+**4. Verify in pre-flight**
+
+Launch ORBIT and open the **Pre-flight** screen. The "Tool integrity manifest" row should show ✓ green once the manifest is populated.
+
+### Sharing across machines
+
+The manifest is plain JSON and safe to commit to a private repo or share with a team. **Only share it over a trusted channel** — a manifest received from an untrusted source defeats the point.
+
+### Override (emergency use only)
+
+If you need to run without a populated manifest (e.g. during initial evaluation), you can enable `hash_override` in the Run screen. This is logged and should never be used against a production tenant.
 
 ---
 
@@ -227,7 +281,7 @@ Checkbox list to select which tools to run. Incompatible tools (wrong OS) and to
 
 - Choose an output directory (a timestamped subfolder is created automatically: `output/2026-11-01_14-32/`)
 - Select report formats: HTML, JSON, CSV (native tool formats), PDF, DOCX (ORBIT summary)
-- Optionally encrypt the output folder to an AES-256 ZIP with a passphrase
+- Optionally encrypt the output folder to a Fernet-encrypted ZIP with a passphrase
 - Option to save an unencrypted copy alongside the encrypted one
 
 ### Screen 5 — Installer
@@ -333,7 +387,7 @@ See [docs/PRIVACY.md](docs/PRIVACY.md) for the full statement.
 - Secrets are **never** written to plaintext files, logs, or process arguments.
 - There is **no telemetry, analytics, or update checking**.
 - All CVE lookups use a **bundled offline JSON file**.
-- Output can be **AES-256 encrypted** at rest.
+- Output can be **Fernet-encrypted** (AES-128-CBC + HMAC-SHA256) at rest.
 
 ---
 

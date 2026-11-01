@@ -11,6 +11,7 @@ from textual.screen import Screen
 from textual.widgets import Button, Footer, Static
 
 from orbit.core.admin_check import is_elevated
+from orbit.core.hash_checker import HashStatus, load_manifest
 from orbit.core.platform_check import check_platform
 from orbit.core.secrets import SecretStore
 from orbit.core.tools import all_tools
@@ -94,6 +95,23 @@ def run_preflight(state) -> list[tuple[bool, str, str]]:
     ok, detail = _check_output_writable(state.output.base_dir)
     results.append((ok, "Output folder writable", detail))
 
+    # 7. Tool integrity manifest
+    try:
+        manifest = load_manifest()
+        tools_section = manifest.get("tools", {})
+        populated = any(
+            v.get("versions")
+            for v in tools_section.values()
+        )
+        if populated:
+            results.append((True, "Tool integrity manifest", "populated — hashes will be verified"))
+        else:
+            # Treat as a non-blocking warning: use None to signal amber
+            results.append((None, "Tool integrity manifest",
+                            "NOT CONFIGURED — hashes unverified; populate data/tool_hashes.json"))
+    except Exception as e:
+        results.append((False, "Tool integrity manifest", f"Could not read manifest: {e}"))
+
     return results
 
 
@@ -136,8 +154,15 @@ class PreflightScreen(Screen):
             container = self.query_one("#checks", Vertical)
             container.remove_children()
             for ok, label, detail in results:
-                icon  = "[green]✓[/green]" if ok else "[red]✗[/red]"
-                style = "#2a6070" if ok else "#cc4444"
+                if ok is True:
+                    icon  = "[green]✓[/green]"
+                    style = "#2a6070"
+                elif ok is None:
+                    icon  = "[yellow]⚠[/yellow]"
+                    style = "#b07800"
+                else:
+                    icon  = "[red]✗[/red]"
+                    style = "#cc4444"
                 row = Static(
                     f"{icon}  [{style}]{label}[/{style}]  [dim]{detail}[/dim]",
                     classes="chk-row"

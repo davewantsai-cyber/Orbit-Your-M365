@@ -103,7 +103,7 @@ class Runner:
             relevant = [r for r in self.hash_results if r.tool == tool.name]
             ok, msg = gate_run(relevant, self.hash_override)
             if not ok:
-                run.status, run.note = RunStatus.SKIPPED, "hash mismatch"
+                run.status, run.note = RunStatus.SKIPPED, "integrity unverified" if not relevant or relevant[0].status.value == "unverified" else "hash mismatch"
                 self._emit(run, "BLOCKED: " + msg)
                 return run
         run.status, run.started = RunStatus.RUNNING, time.monotonic()

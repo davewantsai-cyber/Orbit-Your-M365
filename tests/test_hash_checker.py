@@ -67,3 +67,10 @@ def test_launch_specs_keep_secrets_out_of_argv(tmp_path):
     for t in all_tools():
         spec = t.launch_spec(creds, tmp_path)
         assert "TOPSECRET" not in " ".join(spec.argv) and "AB12CD34EF" not in " ".join(spec.argv)
+
+
+def test_unverified_blocks_run():
+    """HashStatus.UNVERIFIED must block execution (C2 fix)."""
+    from orbit.core.hash_checker import HashResult, HashStatus
+    result = HashResult(tool="scubagear", version="1.0.0", status=HashStatus.UNVERIFIED)
+    assert result.blocks_run is True

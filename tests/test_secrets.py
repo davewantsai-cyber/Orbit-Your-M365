@@ -75,3 +75,28 @@ def test_encrypt_folder_round_trip(tmp_path):
     dest = tmp_path / "restored"
     decrypt_archive(arc, "pw", dest, iterations=FAST)
     assert (dest / "sub" / "a.txt").read_text() == "report data"
+
+
+def test_zip_slip_is_blocked(tmp_path):
+    """Zip entries with path traversal sequences must not escape out_dir."""
+    import io
+    import zipfile
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("../../evil.txt", b"pwned")
+        zf.writestr("safe.txt", b"ok")
+    zip_bytes = buf.getvalue()
+
+    blob = encrypt_bytes(zip_bytes, "pw", iterations=FAST)
+    archive = tmp_path / "test.orbit.zip"
+    archive.write_bytes(blob)
+
+    out_dir = tmp_path / "extracted"
+    out_dir.mkdir()
+    decrypt_archive(archive, "pw", out_dir, iterations=FAST)
+
+    # The traversal entry must not have escaped
+    assert not (tmp_path / "evil.txt").exists()
+    # The safe entry should still be extracted
+    assert (out_dir / "safe.txt").read_bytes() == b"ok"

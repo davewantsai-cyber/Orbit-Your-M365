@@ -28,7 +28,7 @@ class HashResult:
 
     @property
     def blocks_run(self) -> bool:
-        return self.status is HashStatus.MISMATCH
+        return self.status in (HashStatus.MISMATCH, HashStatus.UNVERIFIED)
 
     def explain(self) -> str:
         if self.status is HashStatus.OK:

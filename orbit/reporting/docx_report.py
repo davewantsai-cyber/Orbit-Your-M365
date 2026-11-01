@@ -21,6 +21,17 @@ def render(name: str, **kw) -> list[str]:
     return _env.get_template(name).render(**kw).splitlines()
 
 
+def _finding_lines(f, cve_text: str) -> list[str]:
+    """Return finding detail lines as plain strings (no template rendering)."""
+    nist = ", ".join(f.nist_refs) if f.nist_refs else "None mapped"
+    return [
+        f"Source tool: {f.tool}",
+        f"Control ID: {f.control_id}",
+        f"CVE(s): {cve_text}",
+        f"NIST: {nist}",
+    ]
+
+
 def generate_docx(ctx: ReportContext, folder: Path) -> Path:
     doc = Document()
     # 1. Cover
@@ -53,7 +64,7 @@ def generate_docx(ctx: ReportContext, folder: Path) -> Path:
         h = doc.add_heading(f"[{f.severity}] {f.title}", 2)
         for run in h.runs:
             run.font.color.rgb = RGBColor.from_string(SEV_RGB[f.severity])
-        for ln in render("finding.txt.j2", f=f, cve_text=ctx.cve_text(f)):
+        for ln in _finding_lines(f, ctx.cve_text(f)):
             doc.add_paragraph(ln)
         doc.add_paragraph("Remediation:")
         for b in ctx.bullets(f):
