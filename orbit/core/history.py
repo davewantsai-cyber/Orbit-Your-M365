@@ -51,8 +51,8 @@ def append(record: dict, path: Path | None = None) -> None:
 
 
 def delta(path: Path | None = None) -> tuple[dict, int | None] | None:
-    """(latest record, score change vs. the run before it or None) or None without history."""
-    records = read(path)
+    """(latest real record, score change vs. the run before it or None) or None without history."""
+    records = [r for r in read(path) if not r.get("dry_run")]
     if not records:
         return None
     last = records[-1]
@@ -60,10 +60,23 @@ def delta(path: Path | None = None) -> tuple[dict, int | None] | None:
     return last, (None if prev is None else last["score"] - prev)
 
 
+def sparkline(path: Path | None = None, n: int = 8) -> str:
+    """ASCII bar sparkline of the last n real run scores, e.g. '▁▃▅▇█ [82]'."""
+    BLOCKS = " ▁▂▃▄▅▆▇█"
+    records = [r for r in read(path) if not r.get("dry_run")][-n:]
+    if not records:
+        return ""
+    scores = [r["score"] for r in records]
+    lo, hi = min(scores), max(scores)
+    span = hi - lo or 1
+    bars = "".join(BLOCKS[round((s - lo) / span * (len(BLOCKS) - 1))] for s in scores)
+    return f"{bars}  {scores[-1]}/100"
+
+
 def last_run_markup(path: Path | None = None) -> str:
     d = delta(path)
     if d is None:
-        return "[dim]No previous runs recorded.[/dim]"
+        return "[dim]Pending first run — no score determined yet.[/dim]"
     last, change = d
     line = f"[dim]Last run:[/dim] [green]{last['timestamp'][:10]}[/green]  "
     if change is None:

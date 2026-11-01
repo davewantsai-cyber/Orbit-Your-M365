@@ -1,4 +1,4 @@
-"""Findings viewer: sortable, filterable table with detail and run-comparison modals."""
+"""Findings viewer: sortable, filterable table with detail, run-comparison, and remediation plan."""
 from __future__ import annotations
 
 from rich.markup import escape
@@ -29,6 +29,29 @@ def sort_findings(findings: list[Finding], mode: str) -> list[Finding]:
     if mode == "tool":
         return sorted(findings, key=lambda f: (f.tool.lower(), -RANK[f.severity]))
     return sorted(findings, key=lambda f: (-RANK[f.severity], f.control_id))
+
+
+def remediation_plan(findings: list[Finding]) -> Table:
+    """Prioritised remediation action plan: Critical first, CVE-enriched."""
+    ordered = sort_findings([f for f in findings if f.severity != "Pass"], "severity")
+    t = Table(title="Remediation Action Plan", box=None, padding=(0, 2), show_lines=True)
+    t.add_column("#",           style="dim",      width=3)
+    t.add_column("Priority",    style="bold",     width=10)
+    t.add_column("Control",     style="#2a6070",  width=12)
+    t.add_column("Finding",     style="white",    ratio=2)
+    t.add_column("Action",      style="#1a4a5a",  ratio=3)
+    t.add_column("CVEs",        style="#cc6600",  width=14)
+
+    SEV_STYLE = {"Critical": "bold red", "High": "bold #cc6600",
+                 "Medium": "bold yellow", "Low": "dim"}
+    for i, f in enumerate(ordered[:20], 1):  # cap at 20 to keep readable
+        sty = SEV_STYLE.get(f.severity, "")
+        action = f.remediation[:80] + "…" if f.remediation and len(f.remediation) > 80 \
+            else (f.remediation or "See vendor documentation")
+        cves = ", ".join(f.cve_ids[:2]) + ("…" if len(f.cve_ids) > 2 else "") if f.cve_ids else "—"
+        t.add_row(str(i), f"[{sty}]{f.severity}[/{sty}]",
+                  f.control_id, f.title, action, cves)
+    return t
 
 
 def comparison_table(a: dict, b: dict) -> Table:
@@ -111,12 +134,14 @@ class FindingsScreen(Screen):
         ("s", "sort('severity')", "Sort severity"),
         ("c", "sort('cve')", "Sort CVEs"),
         ("t", "sort('tool')", "Sort tool"),
+        ("r", "remediation", "Remediation plan"),
+        ("slash", "focus_filter", "Filter"),
     ]
 
     DEFAULT_CSS = """
     FindingsScreen #filter { margin: 0 0 1 0; }
     FindingsScreen DataTable { height: 1fr; }
-    FindingsScreen #findings-actions { height: 5; }
+    FindingsScreen #findings-actions { height: 3; }
     """
 
     def __init__(self, findings: list[Finding] | None = None) -> None:
@@ -132,7 +157,7 @@ class FindingsScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Static("[bold cyan]Findings[/bold cyan]  "
-                     "[dim]s severity · c CVEs · t tool · Enter detail[/dim]")
+                     "[dim]s severity · c CVEs · t tool · r remediation · Enter detail[/dim]")
         if not self.findings:
             yield Static(f"[dim]{EMPTY_MSG}[/dim]", id="no-findings")
         else:
@@ -140,6 +165,7 @@ class FindingsScreen(Screen):
             yield DataTable(id="findings-table", cursor_type="row")
             with Horizontal(id="findings-actions"):
                 yield Button("Compare with last run", id="compare-runs")
+                yield Button("Remediation plan (r)", id="remediation-plan")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -174,8 +200,19 @@ class FindingsScreen(Screen):
         if 0 <= idx < len(self._shown):
             self.app.push_screen(FindingDetailModal(self._shown[idx]))
 
+    def action_focus_filter(self) -> None:
+        try:
+            self.query_one("#filter", Input).focus()
+        except Exception:
+            pass
+
+    def action_remediation(self) -> None:
+        self.app.push_screen(CompareModal(remediation_plan(self.findings)))
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id != "compare-runs":
+        if event.button.id == "remediation-plan":
+            self.action_remediation()
+        elif event.button.id != "compare-runs":
             return
         records = history.read()
         if len(records) < 2:

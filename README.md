@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License">
-  <img src="https://img.shields.io/badge/version-1.3.0-purple?style=flat-square" alt="Version 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.4.0-purple?style=flat-square" alt="Version 1.4.0">
   <img src="https://img.shields.io/badge/telemetry-none-brightgreen?style=flat-square" alt="No telemetry">
   <img src="https://img.shields.io/badge/client--side-100%25-brightgreen?style=flat-square" alt="Client-side">
 </p>
@@ -20,7 +20,7 @@
   Office 365 Risk & Baseline Intelligence Toolkit
   Author  : Reece Gabriel Dickson
   Role    : Independent Cybersecurity Research Analyst
-  Version : v1.3.0
+  Version : v1.4.0
 ```
 
 ORBIT is a **terminal application** with an animated TUI that orchestrates leading M365 security auditing tools, manages their credentials securely, runs them, normalises and scores every finding, and writes a **PDF / DOCX executive summary report** — all without your data ever leaving your machine.
@@ -49,15 +49,18 @@ What normally takes a skilled analyst **4–8 hours** of manual portal work and 
 
 ## What ORBIT Does
 
-1. **Checks your environment** — admin rights, PowerShell version, OS compatibility — before anything runs.
+1. **Pre-flight checks** — before any run, verifies admin rights, PowerShell version, OPA binary, tool installs, credentials, and output folder writability. Local only — no network calls.
 2. **Stores credentials securely** — Tenant ID, App ID, and client secrets go into your OS keychain (Windows Credential Manager / macOS Keychain / libsecret). Never written in plaintext. Never in process arguments visible to `ps`.
 3. **Verifies tool integrity** — SHA-256 hash check against a bundled manifest before any tool is launched. A mismatch is a hard stop.
-4. **Installs / updates tools** — one screen to install ScubaGear, Maester, Monkey365, ROADtools, and Hawk from their official sources.
+4. **Installs / updates tools** — one screen to install ScubaGear, Maester, Monkey365, ROADtools, and Hawk with per-tool status, version, Install/Update/Remove buttons.
 5. **Runs selected tools** — async subprocess launcher with live streaming logs and per-tool progress. Tools are stopped cleanly on cancel.
 6. **Parses and normalises output** — JSON and CSV from ScubaGear, Maester, and Monkey365 unified into a single `Finding` model with severity, control ID, CVE references, and remediation text.
 7. **Scores findings** — a weighted risk matrix (Critical ×10 / High ×7 / Medium ×4 / Low ×1) produces an overall posture score and ranked top findings.
-8. **Generates a summary report** — PDF or DOCX with cover page, posture score bar, top 2–3 critical findings with CVE + remediation steps, and a full findings table. The native tool reports are preserved alongside it in the output folder.
-9. **Optionally encrypts output** — Fernet (AES-256) with a PBKDF2 passphrase. An unencrypted copy can be saved as well.
+8. **Findings viewer** — sortable/filterable DataTable with severity colour coding; detail modal per finding; `r` for prioritised remediation action plan; `/` to search; run comparison delta.
+9. **Generates reports** — PDF or DOCX technical report with cover, posture bar, top findings with CVE + remediation, full findings table. Plus a separate **Executive Summary PDF** (on demand) for non-technical stakeholders: 2-page plain-English report with risk gauge, top findings, and a written summary paragraph.
+10. **Optionally encrypts output** — Fernet (AES-256) with a PBKDF2 passphrase. An unencrypted copy can be saved as well.
+11. **History and trend** — run history stored locally; home screen shows last run date, score delta (↑/↓), and ASCII sparkline trend across last 8 real runs.
+12. **Config profiles** — export/import settings as a portable JSON file (`--export-profile`, `--import-profile`) for moving between machines or sharing with a team.
 
 ---
 
@@ -97,11 +100,11 @@ pip install -e ".[dev]"
 # Run tests (no tenant needed)
 pytest tests/ -v
 
-# Launch in dry-run mode (full TUI, no M365 tenant needed)
-python orbit.py --dry-run
+# Launch in dry-run mode (auto-resizes terminal to 140×43, full TUI, no M365 tenant needed)
+python launch.py --dry-run
 
 # Real run (see Installation for prerequisites)
-python orbit.py
+python launch.py
 ```
 
 ---
@@ -151,7 +154,7 @@ python orbit.py --dry-run
 ### Verify
 
 ```bash
-pytest tests/ -v          # 36 tests, all should pass
+pytest tests/ -v          # 77 tests, all should pass
 python orbit.py --help
 ```
 

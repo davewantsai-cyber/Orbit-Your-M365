@@ -78,7 +78,7 @@ class AnimatedBanner(Widget):
         self._static_layer: list[list[tuple[str, str]]] | None = None
         self._clock_row: int = 0
         self._left_end: int = 0
-        self.set_interval(0.10, self._tick)   # 10 fps — smooth and cheap
+        self.set_interval(0.25, self._tick)   # 4 fps — responsive, low CPU
 
     def _tick(self) -> None:
         self._f += 1
@@ -100,12 +100,12 @@ class AnimatedBanner(Widget):
         t = f * 0.08
 
         w = max(self.size.width  or 120, 80)
-        h = max(self.size.height or 20,  16)
+        h = max(self.size.height or 16,  16)
 
-        # left panel limit — logo is 38 chars; give it a margin
+        # left panel limit — logo is 38 chars; give it enough room for tagline
         logo_w   = len(_LOGO[0])
-        left_end = logo_w + 6          # ~44 cols for left panel
-        left_end = min(left_end, w // 2 + 4)
+        left_end = logo_w + 8          # ~46 cols for left panel
+        left_end = min(left_end, w // 2 + 6)
 
         cv: list[list[tuple[str, str]]] = [[(" ", "#04060a")] * w for _ in range(h)]
 
@@ -290,10 +290,13 @@ class AnimatedBanner(Widget):
         for j in range(min(logo_w, left_end - 2)):
             p(rule_row, 2 + j, "─", "#0a2030")
 
-        # Tagline
-        tag = "M365 Risk & Baseline Intelligence Toolkit"
+        # Tagline — truncate cleanly with ellipsis if needed
+        tag = "Orbiting your M365. Nothing escapes."
+        max_tag = left_end - 3
+        if len(tag) > max_tag:
+            tag = tag[:max_tag - 1] + "…"
         tag_row = rule_row + 1
-        for j, ch in enumerate(tag[:left_end - 3]):
+        for j, ch in enumerate(tag):
             p(tag_row, 2 + j, ch, "#1a4a5a")
 
         # Metadata rows

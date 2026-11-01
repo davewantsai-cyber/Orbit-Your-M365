@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.4.0] — 2026-11-01
+
+### Added
+- **Pre-flight check screen** — shown before every run; verifies elevation, PowerShell 7, OPA binary, tool installs, credentials, and output folder writability; all local checks, no network calls; explains why live credential validation is intentionally omitted; Re-check and Proceed buttons
+- **Executive Summary PDF** — on-demand 2-page report for non-technical stakeholders: dark cover with posture score bar and risk label (LOW/MEDIUM/HIGH/CRITICAL RISK), priority findings with plain-English remediation, auto-generated summary paragraph; generated async with progress bar, never blocks UI
+- **Posture sparkline** — ASCII bar trend (`▁▃▅▇█ 74/100`) on home screen showing last 8 real run scores; dry-run records excluded
+- **Remediation action plan** — press `r` or click button in Findings screen; prioritised modal table with control ID, finding, first 80 chars of remediation, CVEs; capped at top 20
+- **Keyboard filter in Findings** — press `/` to jump focus to the filter input; live search across all columns
+- **Client name on Run screen** — prominent text field at top of Run screen; syncs with Output screen; stamped on all reports
+- **Config profile export/import** — `--export-profile FILE` and `--import-profile FILE` CLI flags; portable JSON snapshot of all non-sensitive settings; safe for sharing between machines or team members; never exports secrets
+- **Auto-resize launcher** — `launch.py` resizes terminal to 140×43 on macOS (AppleScript + ANSI escape), Windows (`mode con`), and Linux (ANSI) before starting the TUI
+- **Slogan** — banner tagline updated to "Orbiting your M365. Nothing escapes."
+- **Onboarding re-prompt** — wizard re-shown on every launch until credentials are actually saved; skipping no longer suppresses it permanently
+
+### Improved
+- Banner animation reduced from 10fps to 4fps — 60% less CPU, buttons and screen transitions feel instant
+- Installer screen redesigned: compact one-row-per-tool layout with status badge, version, Install/Update/Remove per tool; fits on one screen with no scroll; log expands on use
+- Quotes panel uses `1fr` height — fills all available space between fixed sections rather than fixed 6 rows
+- `#last-run` now shows "Pending first run — no score determined yet." when no real runs recorded; dry-run records excluded from history display and sparkline
+- Terminal size warning threshold updated to 120×40
+
+### Tests
+- 77 passing (unchanged — new features are UI/async, covered by existing integration tests)
+
+---
+
 ## [1.3.0] — 2026-11-01
 
 ### Added

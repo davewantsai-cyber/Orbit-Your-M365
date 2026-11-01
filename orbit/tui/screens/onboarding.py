@@ -17,7 +17,9 @@ WELCOME = (
     "place, merges their results and produces a client-ready report. A multi-tool audit\n"
     "that normally takes hours of manual work is reduced to a single run.\n\n"
     "[bold yellow]Authorised use only:[/bold yellow] only assess tenants you own or have\n"
-    "explicit written permission to test."
+    "explicit written permission to test.\n\n"
+    "[dim]No credentials are saved yet. Complete setup or skip — you can return to\n"
+    "the Credentials screen at any time from the main menu.[/dim]"
 )
 
 
@@ -34,10 +36,12 @@ def has_saved_credentials() -> bool:
 
 
 def should_show() -> bool:
-    return bool(config_store.load()["app"]["first_run"]) and not has_saved_credentials()
+    """Show wizard whenever credentials are missing — not just on first run."""
+    return not has_saved_credentials()
 
 
 def mark_done() -> None:
+    """No longer used to gate the wizard — kept for config_store compatibility."""
     try:
         config_store.update("app", first_run=False)
     except OSError:

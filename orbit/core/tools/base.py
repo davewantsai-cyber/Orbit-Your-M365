@@ -111,6 +111,13 @@ class Tool(ABC):
                     f"{verb} -Name {self.package}{extra}"]
         return [_python(), "-m", "pip", "install", "--upgrade", self.package]
 
+    def uninstall_command(self) -> list[str] | None:
+        """Return argv to uninstall this tool, or None if manual removal required."""
+        if self.route == "psgallery":
+            return [shutil.which("pwsh") or "pwsh", "-NoProfile", "-Command",
+                    f"Uninstall-Module -Name {self.package} -AllVersions -Force"]
+        return [_python(), "-m", "pip", "uninstall", "-y", self.package]
+
     # --- run ----------------------------------------------------------------
     @abstractmethod
     def launch_spec(self, creds: dict, out_dir: Path) -> LaunchSpec:

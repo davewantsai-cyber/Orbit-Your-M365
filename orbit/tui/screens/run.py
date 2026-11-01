@@ -10,7 +10,7 @@ from textual import work
 from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.screen import Screen
-from textual.widgets import Button, Checkbox, Collapsible, Footer, ProgressBar, RichLog, Static
+from textual.widgets import Button, Checkbox, Collapsible, Footer, Input, ProgressBar, RichLog, Static
 
 from orbit.core import config_store, emailer, notify
 from orbit.core.hash_checker import check_tool
@@ -44,6 +44,8 @@ class RunScreen(Screen):
     def compose(self) -> ComposeResult:
         mode = "[red](DRY RUN)[/red] " if self.app.state.dry_run else ""
         yield Static(f"[bold cyan]Run[/bold cyan] {mode}")
+        yield Static("[dim]Client / engagement name (appears on report cover)[/dim]")
+        yield Input(self.app.state.client_name, placeholder="Confidential", id="client-name")
         yield Checkbox("Override hash-check mismatch (I accept the risk)", id="override")
         yield Checkbox("Email results when complete", id="email-run",
                        value=config_store.load()["notifications"]["email_notify"])
@@ -127,6 +129,10 @@ class RunScreen(Screen):
             ok = await asyncio.to_thread(self._email, findings, written, tools)
             self.query_one("#email-status", Static).update(
                 "[green]Email sent ✓[/green]" if ok else "[red]Email failed ✗[/red]")
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id == "client-name":
+            self.app.state.client_name = event.value.strip()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         bid = event.button.id or ""

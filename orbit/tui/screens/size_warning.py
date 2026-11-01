@@ -6,8 +6,8 @@ from textual.containers import Vertical
 from textual.screen import Screen
 from textual.widgets import Button, Static
 
-MIN_WIDTH = 100
-MIN_HEIGHT = 32
+MIN_WIDTH = 120
+MIN_HEIGHT = 40
 
 
 class SizeWarningScreen(Screen):
