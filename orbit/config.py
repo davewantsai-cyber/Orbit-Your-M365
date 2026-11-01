@@ -3,7 +3,7 @@ from pathlib import Path
 
 AUTHOR = "Reece Gabriel Dickson"
 ROLE = "Independent Cybersecurity Research Analyst"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 YEAR = "2026"
 
 ROOT = Path(__file__).resolve().parent.parent
