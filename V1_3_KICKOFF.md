@@ -55,7 +55,7 @@ PRIVACY
 
 VERSION   v1.2.0
 AUTHOR    Reece Gabriel Dickson — Independent Cybersecurity Research Analyst
-LICENSE   MIT — github.com/OpenSourceByReece/OrbitSecurityM365
+LICENSE   MIT — github.com/OrbitalSecurity/OrbitM365
 ```
 
 Register `HelpScreen` in `orbit/tui/app.py` SCREENS dict and bind `?` globally in `OrbitApp` to toggle it.
@@ -165,7 +165,7 @@ If fewer than 2 history entries exist, show "Need at least 2 runs to compare."
 import urllib.request, json
 from orbit.config import VERSION
 
-RELEASES_URL = "https://api.github.com/repos/OpenSourceByReece/OrbitSecurityM365/releases/latest"
+RELEASES_URL = "https://api.github.com/repos/OrbitalSecurity/OrbitM365/releases/latest"
 
 def check_latest(timeout: int = 3) -> str | None:
     """Return latest version string if newer than current, else None. Never raises."""
@@ -182,7 +182,7 @@ def check_latest(timeout: int = 3) -> str | None:
 
 **Where consumed:** `orbit/tui/screens/home.py` — run `check_latest()` in a background `asyncio` worker on mount. If a newer version is found, show a dim one-liner below the last-run line:
 
-`[dim]Update available: v1.3.0 — github.com/OpenSourceByReece/OrbitSecurityM365/releases[/dim]`
+`[dim]Update available: v1.3.0 — github.com/OrbitalSecurity/OrbitM365/releases[/dim]`
 
 Respect `config["notifications"].get("update_check", True)` — if false, skip entirely.
 

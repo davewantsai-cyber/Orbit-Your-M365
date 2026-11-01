@@ -286,7 +286,7 @@ class HomeScreen(Screen):
         if latest:
             self.query_one("#update-notice", Static).update(
                 f"[dim]Update available: v{escape(latest)} — "
-                "github.com/OpenSourceByReece/OrbitSecurityM365/releases[/dim]")
+                "github.com/OrbitalSecurity/OrbitM365/releases[/dim]")
 
     def on_screen_resume(self) -> None:
         self._refresh_dashboard()

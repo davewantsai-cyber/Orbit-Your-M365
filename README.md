@@ -89,7 +89,7 @@ Further reading and reference tools:
 
 ```bash
 # Clone
-git clone https://github.com/OpenSourceByReece/Orbit365.git
+git clone https://github.com/OrbitalSecurity/OrbitM365.git
 cd orbit-m365
 
 # Create venv and install
@@ -399,7 +399,7 @@ Issues and pull requests are welcome. Please:
 
 **Reece Gabriel Dickson**  
 Independent Cybersecurity Research Analyst  
-[github.com/OpenSourceByReece](https://github.com/OpenSourceByReece)
+[github.com/OrbitalSecurity](https://github.com/OrbitalSecurity)
 
 ---
 
