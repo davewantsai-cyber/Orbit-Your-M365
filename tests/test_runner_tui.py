@@ -42,7 +42,8 @@ async def test_missing_binary_fails_cleanly(tmp_path):
     assert run.status is RunStatus.FAILED
 
 
-async def test_tui_launches_dry_run():
+async def test_tui_launches_dry_run(monkeypatch):
+    monkeypatch.setattr("orbit.tui.screens.onboarding.has_saved_credentials", lambda: True)
     app = OrbitApp(dry_run=True)
     async with app.run_test(size=(120, 40)) as pilot:  # >= minimum size, else SizeWarningScreen
         await pilot.pause()

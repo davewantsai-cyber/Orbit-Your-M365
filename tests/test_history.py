@@ -30,14 +30,14 @@ def test_default_path_uses_orbit_home():
 
 def test_delta_and_markup(tmp_path):
     p = tmp_path / "h.json"
-    assert history.delta(p) is None and "No previous runs" in history.last_run_markup(p)
-    history.append({"timestamp": "2026-10-01T00:00:00Z", "score": 68}, p)
+    assert history.delta(p) is None and "Pending first run" in history.last_run_markup(p)
+    history.append({"timestamp": "2026-10-01T00:00:00Z", "score": 68, "dry_run": False}, p)
     assert history.delta(p)[1] is None
-    history.append({"timestamp": "2026-10-15T00:00:00Z", "score": 74}, p)
+    history.append({"timestamp": "2026-10-15T00:00:00Z", "score": 74, "dry_run": False}, p)
     assert history.delta(p)[1] == 6
     m = history.last_run_markup(p)
     assert "2026-10-15" in m and "68" in m and "74" in m and "↑6" in m
-    history.append({"timestamp": "2026-10-20T00:00:00Z", "score": 70}, p)
+    history.append({"timestamp": "2026-10-20T00:00:00Z", "score": 70, "dry_run": False}, p)
     assert "↓4" in history.last_run_markup(p)
-    history.append({"timestamp": "2026-10-21T00:00:00Z", "score": 70}, p)
+    history.append({"timestamp": "2026-10-21T00:00:00Z", "score": 70, "dry_run": False}, p)
     assert "→" in history.last_run_markup(p).split("70")[-1]

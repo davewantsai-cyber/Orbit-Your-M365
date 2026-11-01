@@ -70,10 +70,33 @@ def print_tool_table() -> None:
                    "(default: selection from ~/.orbit/config.toml).")
 @click.option("--list-tools", "list_tools", is_flag=True,
               help="Print installed/compatibility status for each tool and exit.")
+@click.option("--export-profile", "export_profile", default="", metavar="FILE",
+              help="Export current settings to a JSON profile file and exit.")
+@click.option("--import-profile", "import_profile", default="", metavar="FILE",
+              help="Import settings from a JSON profile file and exit.")
 @click.version_option(VERSION, prog_name="ORBIT")
 def main(dry_run: bool, headless: bool, json_out: bool, tools_arg: str,
-         list_tools: bool) -> None:
+         list_tools: bool, export_profile: str, import_profile: str) -> None:
     """ORBIT - Office 365 Risk & Baseline Intelligence Toolkit (TUI)."""
+    if export_profile:
+        from pathlib import Path
+        from orbit.core.profile import export_profile as do_export
+        dest = Path(export_profile)
+        do_export(dest)
+        click.echo(f"Profile exported to {dest}")
+        sys.exit(0)
+
+    if import_profile:
+        from pathlib import Path
+        from orbit.core.profile import import_profile as do_import
+        src = Path(import_profile)
+        if not src.exists():
+            click.echo(f"orbit: file not found: {src}", err=True)
+            sys.exit(1)
+        do_import(src)
+        click.echo(f"Profile imported from {src}")
+        sys.exit(0)
+
     if list_tools:
         print_tool_table()
         sys.exit(0)

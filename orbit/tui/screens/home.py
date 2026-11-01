@@ -254,6 +254,9 @@ class HomeScreen(Screen):
         from orbit.core import history
         tbl = _tool_table(all_tools())
         markup = history.last_run_markup()
+        spark = history.sparkline()
+        if spark:
+            markup += f"  [dim]Trend: {spark}[/dim]"
         self.query_one("#dashboard", Static).update(tbl)
         self.query_one("#last-run", Static).update(markup)
 
@@ -291,7 +294,8 @@ class HomeScreen(Screen):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         target = (event.button.id or "").removeprefix("nav-")
         if target == "findings":
-            # fresh instance each time so it reflects the latest run
             self.app.push_screen(FindingsScreen())
+        elif target == "run":
+            self.app.push_screen("preflight")
         elif target in self.app.SCREENS:
             self.app.push_screen(target)

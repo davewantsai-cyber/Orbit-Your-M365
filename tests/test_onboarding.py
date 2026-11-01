@@ -16,7 +16,8 @@ async def test_wizard_composes_and_skip_sets_first_run_false(monkeypatch):
     assert config_store.load()["app"]["first_run"] is False
 
 
-async def test_wizard_not_shown_after_first_run():
+async def test_wizard_not_shown_after_first_run(monkeypatch):
+    monkeypatch.setattr("orbit.tui.screens.onboarding.has_saved_credentials", lambda: True)
     config_store.update("app", first_run=False)
     app = OrbitApp(dry_run=True)
     async with app.run_test(size=(120, 40)) as pilot:
