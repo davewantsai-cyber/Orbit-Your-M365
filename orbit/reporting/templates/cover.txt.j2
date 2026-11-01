@@ -1,0 +1,5 @@
+{{ ctx.title }}
+Client: {{ ctx.client }}
+Date: {{ ctx.report_date }}
+Assessor: {{ ctx.assessor }}, {{ ctx.role }}
+Tools used: {{ ctx.tools_used | join(", ") if ctx.tools_used else "none" }}

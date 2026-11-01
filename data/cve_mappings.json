@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "_note": "Indicative mapping of M365 control findings to related CVEs / NIST 800-53 controls. Associations are heuristic (the misconfiguration class relates to the CVE or control); they are not proof of exploitability. Verify before citing to a client. CVSS scores are base scores from NVD where recorded here.",
+  "controls": [
+    {
+      "canonical": "LEGACY_AUTH",
+      "title": "Legacy authentication not blocked",
+      "aliases": [
+        "MS.AAD.1.1",
+        "MT.1009"
+      ],
+      "cve_ids": [
+        "CVE-2019-1372"
+      ],
+      "nist_refs": [
+        "IA-2",
+        "AC-17"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Create a Conditional Access policy blocking legacy authentication protocols for all users.",
+        "Run in report-only mode first and review sign-in logs for legacy clients.",
+        "Migrate remaining legacy clients to modern authentication."
+      ]
+    },
+    {
+      "canonical": "ADMIN_MFA",
+      "title": "MFA not required for administrators",
+      "aliases": [
+        "MS.AAD.3.1",
+        "MT.1007"
+      ],
+      "cve_ids": [
+        "CVE-2022-21972"
+      ],
+      "nist_refs": [
+        "IA-2(1)"
+      ],
+      "severity_floor": "Critical",
+      "cvss": {},
+      "remediation": [
+        "Require MFA (ideally phishing-resistant) for all privileged directory roles via Conditional Access.",
+        "Exclude only two monitored break-glass accounts.",
+        "Review role assignments and remove standing Global Administrator access."
+      ]
+    },
+    {
+      "canonical": "AUDIT_RETENTION",
+      "title": "Audit log retention under one year",
+      "aliases": [
+        "MT.1010"
+      ],
+      "cve_ids": [],
+      "nist_refs": [
+        "AU-11"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Extend unified audit log retention to at least 365 days (licence permitting).",
+        "Export logs to a SIEM or storage account for long-term retention."
+      ]
+    },
+    {
+      "canonical": "EXT_FORWARDING",
+      "title": "External email forwarding allowed",
+      "aliases": [
+        "MS.EXO.1.1"
+      ],
+      "cve_ids": [
+        "CVE-2023-23397"
+      ],
+      "nist_refs": [
+        "AC-4",
+        "SC-7"
+      ],
+      "severity_floor": null,
+      "cvss": {
+        "CVE-2023-23397": 9.8
+      },
+      "remediation": [
+        "Disable automatic external forwarding in the outbound spam filter policy.",
+        "Remove remote-domain AutoForwardEnabled settings.",
+        "Alert on new inbox rules that forward externally."
+      ]
+    },
+    {
+      "canonical": "PHS_NO_PTA",
+      "title": "Password hash sync without pass-through authentication",
+      "aliases": [
+        "MT.1021"
+      ],
+      "cve_ids": [],
+      "nist_refs": [
+        "IA-5"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Evaluate pass-through authentication or federation alongside password hash sync.",
+        "Enable leaked-credential detection in Entra ID Protection."
+      ]
+    },
+    {
+      "canonical": "CA_NOT_ENFORCED",
+      "title": "Conditional access not enforced",
+      "aliases": [
+        "MT.1006"
+      ],
+      "cve_ids": [
+        "CVE-2022-21966"
+      ],
+      "nist_refs": [
+        "AC-2",
+        "AC-3"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Move report-only Conditional Access policies to enforced after validating impact.",
+        "Adopt a baseline policy set (MFA, device compliance, legacy auth block)."
+      ]
+    },
+    {
+      "canonical": "SPO_EXT_SHARING",
+      "title": "SharePoint external sharing unrestricted",
+      "aliases": [
+        "MS.SHAREPOINT.1.1"
+      ],
+      "cve_ids": [],
+      "nist_refs": [
+        "AC-3"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Restrict tenant sharing to 'New and existing guests' or tighter.",
+        "Limit sharing to approved domains.",
+        "Set default link type to specific people."
+      ]
+    },
+    {
+      "canonical": "TEAMS_EXT_ACCESS",
+      "title": "Teams external access unrestricted",
+      "aliases": [
+        "MS.TEAMS.1.1"
+      ],
+      "cve_ids": [],
+      "nist_refs": [
+        "AC-17"
+      ],
+      "severity_floor": null,
+      "cvss": {},
+      "remediation": [
+        "Restrict external access to an allow-list of trusted domains.",
+        "Disable consumer Teams/Skype federation unless required."
+      ]
+    }
+  ]
+}

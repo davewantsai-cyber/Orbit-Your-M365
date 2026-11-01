@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "_note": "SHA-256 manifest of installed tool files, keyed by tool then version then relative path. Versions with no entry are reported as UNVERIFIED (warning); any recorded mismatch is a hard stop. Populate with `python -c 'from orbit.core.hash_checker import hash_tree; ...'` against a known-good install.",
+  "tools": {
+    "scubagear": {"versions": {}},
+    "maester": {"versions": {}},
+    "monkey365": {"versions": {}},
+    "roadtools": {"versions": {}},
+    "hawk": {"versions": {}}
+  }
+}

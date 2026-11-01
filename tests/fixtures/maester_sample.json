@@ -1,0 +1,117 @@
+{
+  "ExecutedAt": "2026-01-01T00:00:00Z",
+  "TenantId": "00000000-0000-0000-0000-000000000000",
+  "TenantName": "Contoso Example (SYNTHETIC SAMPLE)",
+  "TotalCount": 8,
+  "PassedCount": 3,
+  "FailedCount": 4,
+  "SkippedCount": 1,
+  "Tests": [
+    {
+      "Name": "MT.1009: Legacy authentication is blocked",
+      "Result": "Failed",
+      "Severity": "High",
+      "Tag": [
+        "CA",
+        "Security"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1009: Legacy authentication is blocked",
+        "TestDescription": "Legacy authentication is blocked.",
+        "TestResult": "No policy blocks legacy authentication."
+      }
+    },
+    {
+      "Name": "MT.1007: All administrator roles require MFA",
+      "Result": "Failed",
+      "Severity": "High",
+      "Tag": [
+        "CA",
+        "MFA"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1007: All administrator roles require MFA",
+        "TestDescription": "All administrator roles require MFA.",
+        "TestResult": "Administrator roles are not covered by an MFA policy."
+      }
+    },
+    {
+      "Name": "MT.1006: Conditional access policies are enforced",
+      "Result": "Failed",
+      "Severity": "High",
+      "Tag": [
+        "CA"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1006: Conditional access policies are enforced",
+        "TestDescription": "Conditional access policies are enforced.",
+        "TestResult": "3 policies are in report-only mode."
+      }
+    },
+    {
+      "Name": "MT.1010: Audit log retention is at least one year",
+      "Result": "Failed",
+      "Severity": "Medium",
+      "Tag": [
+        "Audit"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1010: Audit log retention is at least one year",
+        "TestDescription": "Audit log retention is at least one year.",
+        "TestResult": "Retention is 90 days."
+      }
+    },
+    {
+      "Name": "MT.1021: Password hash sync is configured with pass-through authentication",
+      "Result": "Passed",
+      "Severity": "Low",
+      "Tag": [
+        "Hybrid"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1021: Password hash sync is configured with pass-through authentication",
+        "TestDescription": "Password hash sync is configured with pass-through authentication.",
+        "TestResult": "Configured."
+      }
+    },
+    {
+      "Name": "MT.1022: Security defaults or conditional access are in place",
+      "Result": "Passed",
+      "Severity": "Medium",
+      "Tag": [
+        "CA"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1022: Security defaults or conditional access are in place",
+        "TestDescription": "Security defaults or conditional access are in place.",
+        "TestResult": "Conditional access in use."
+      }
+    },
+    {
+      "Name": "MT.1003: Guest access is restricted",
+      "Result": "Skipped",
+      "Severity": "Medium",
+      "Tag": [
+        "Guest"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1003: Guest access is restricted",
+        "TestDescription": "Guest access is restricted.",
+        "TestResult": "Skipped: licence missing."
+      }
+    },
+    {
+      "Name": "MT.1012: Emergency access accounts exist",
+      "Result": "Passed",
+      "Severity": "Medium",
+      "Tag": [
+        "Identity"
+      ],
+      "ResultDetail": {
+        "TestTitle": "MT.1012: Emergency access accounts exist",
+        "TestDescription": "Emergency access accounts exist.",
+        "TestResult": "Two accounts found."
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build / distribution
+*.egg-info/
+build/
+dist/
+*.egg
+MANIFEST
+
+# Test and lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets — never commit these
+.env
+.env.*
+*.pem
+*.pfx
+*.p12
+*.key
+secrets.enc
+secrets.json
+~/.orbit/
+
+# ORBIT output data — contains sensitive tenant configuration
+output/
+*.orbit.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Internal build/planning files
+KICKOFF.md
+
+# Claude Code internal settings
+.claude/

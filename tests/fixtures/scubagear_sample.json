@@ -1,0 +1,164 @@
+{
+  "MetaData": {
+    "Tool": "ScubaGear (SYNTHETIC SAMPLE)",
+    "TenantId": "00000000-0000-0000-0000-000000000000",
+    "DisplayName": "Contoso Example",
+    "DomainName": "contoso.example.com"
+  },
+  "Results": {
+    "Aad": [
+      {
+        "GroupName": "Legacy Authentication",
+        "GroupNumber": "1",
+        "Controls": [
+          {
+            "Control ID": "MS.AAD.1.1v1",
+            "Requirement": "Legacy authentication SHALL be blocked.",
+            "Result": "Fail",
+            "Criticality": "Shall",
+            "Details": "0 conditional access policies block legacy authentication."
+          }
+        ]
+      },
+      {
+        "GroupName": "Risk Based Policies",
+        "GroupNumber": "2",
+        "Controls": [
+          {
+            "Control ID": "MS.AAD.2.1v1",
+            "Requirement": "Users detected as high risk SHALL be blocked.",
+            "Result": "Pass",
+            "Criticality": "Shall",
+            "Details": "Requirement met."
+          }
+        ]
+      },
+      {
+        "GroupName": "Strong Authentication",
+        "GroupNumber": "3",
+        "Controls": [
+          {
+            "Control ID": "MS.AAD.3.1v1",
+            "Requirement": "Phishing-resistant MFA SHALL be enforced for all users.",
+            "Result": "Fail",
+            "Criticality": "Shall",
+            "Details": "No policy requires phishing-resistant MFA for administrators."
+          }
+        ]
+      }
+    ],
+    "Defender": [
+      {
+        "GroupName": "Preset Security Policies",
+        "GroupNumber": "1",
+        "Controls": [
+          {
+            "Control ID": "MS.DEFENDER.1.1v1",
+            "Requirement": "Standard or Strict preset policies SHALL be enabled.",
+            "Result": "Pass",
+            "Criticality": "Shall",
+            "Details": "Requirement met."
+          },
+          {
+            "Control ID": "MS.DEFENDER.4.1v1",
+            "Requirement": "Sensitive info protection SHOULD be enabled.",
+            "Result": "N/A",
+            "Criticality": "Should",
+            "Details": "Not applicable to this tenant license."
+          }
+        ]
+      }
+    ],
+    "Exo": [
+      {
+        "GroupName": "Automatic Forwarding",
+        "GroupNumber": "1",
+        "Controls": [
+          {
+            "Control ID": "MS.EXO.1.1v1",
+            "Requirement": "Automatic forwarding to external domains SHALL be disabled.",
+            "Result": "Fail",
+            "Criticality": "Shall",
+            "Details": "1 remote domain allows automatic forwarding."
+          }
+        ]
+      },
+      {
+        "GroupName": "Email Authentication",
+        "GroupNumber": "2",
+        "Controls": [
+          {
+            "Control ID": "MS.EXO.2.2v2",
+            "Requirement": "An SPF policy SHALL be published for each domain.",
+            "Result": "Pass",
+            "Criticality": "Shall",
+            "Details": "Requirement met."
+          },
+          {
+            "Control ID": "MS.EXO.3.1v1",
+            "Requirement": "DKIM SHOULD be enabled for all domains.",
+            "Result": "Pass",
+            "Criticality": "Should",
+            "Details": "Requirement met."
+          }
+        ]
+      }
+    ],
+    "Sharepoint": [
+      {
+        "GroupName": "External Sharing",
+        "GroupNumber": "1",
+        "Controls": [
+          {
+            "Control ID": "MS.SHAREPOINT.1.1v1",
+            "Requirement": "External sharing SHALL be limited to approved domains.",
+            "Result": "Fail",
+            "Criticality": "Shall",
+            "Details": "Sharing capability is set to Anyone."
+          }
+        ]
+      },
+      {
+        "GroupName": "Default Links",
+        "GroupNumber": "2",
+        "Controls": [
+          {
+            "Control ID": "MS.SHAREPOINT.2.1v1",
+            "Requirement": "File and folder default sharing SHALL be set to specific people.",
+            "Result": "Pass",
+            "Criticality": "Shall",
+            "Details": "Requirement met."
+          }
+        ]
+      }
+    ],
+    "Teams": [
+      {
+        "GroupName": "External Access",
+        "GroupNumber": "1",
+        "Controls": [
+          {
+            "Control ID": "MS.TEAMS.1.1v1",
+            "Requirement": "External access SHALL be restricted to approved domains.",
+            "Result": "Fail",
+            "Criticality": "Shall",
+            "Details": "Federation is open to all external domains."
+          }
+        ]
+      },
+      {
+        "GroupName": "Meetings",
+        "GroupNumber": "2",
+        "Controls": [
+          {
+            "Control ID": "MS.TEAMS.2.1v1",
+            "Requirement": "Anonymous users SHOULD NOT start meetings.",
+            "Result": "Warning",
+            "Criticality": "Should",
+            "Details": "Manual review recommended."
+          }
+        ]
+      }
+    ]
+  }
+}
