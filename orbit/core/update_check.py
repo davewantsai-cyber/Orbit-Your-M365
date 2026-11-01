@@ -6,7 +6,7 @@ import urllib.request
 
 from orbit.config import VERSION
 
-RELEASES_URL = "https://api.github.com/repos/OrbitalSecurity/OrbitM365/releases/latest"
+RELEASES_URL = "https://api.github.com/repos/OrbitalSecurity/Orbit-Your-M365/releases/latest"
 
 
 def check_latest(timeout: int = 3) -> str | None:

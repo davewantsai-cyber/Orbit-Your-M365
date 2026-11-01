@@ -49,7 +49,7 @@ HELP_TEXT = f"""[bold cyan]ORBIT — Keyboard Shortcuts & Reference[/bold cyan]
 
 [bold]VERSION[/bold]   v{VERSION}
 [bold]AUTHOR[/bold]    Reece Gabriel Dickson — Independent Cybersecurity Research Analyst
-[bold]LICENSE[/bold]   MIT — github.com/OrbitalSecurity/OrbitM365
+[bold]LICENSE[/bold]   MIT — github.com/OrbitalSecurity/Orbit-Your-M365
 """
 
 

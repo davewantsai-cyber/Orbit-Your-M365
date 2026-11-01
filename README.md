@@ -89,7 +89,7 @@ Further reading and reference tools:
 
 ```bash
 # Clone
-git clone https://github.com/OrbitalSecurity/OrbitM365.git
+git clone https://github.com/OrbitalSecurity/Orbit-Your-M365.git
 cd orbit-m365
 
 # Create venv and install

@@ -15,7 +15,7 @@ Thanks for your interest. ORBIT is a small personal project — contributions ar
 ## Setup
 
 ```bash
-git clone https://github.com/OrbitalSecurity/OrbitM365.git
+git clone https://github.com/OrbitalSecurity/Orbit-Your-M365.git
 cd OrbitM365
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate

@@ -98,7 +98,7 @@ Review each tool's documentation for current information on their data handling.
 
 ORBIT's source code is fully open. You can review exactly what it does at:
 
-https://github.com/OrbitalSecurity/OrbitM365
+https://github.com/OrbitalSecurity/Orbit-Your-M365
 
 There are no compiled binaries, obfuscated code, or pre-built executables in ORBIT itself. You run it directly from source.
 

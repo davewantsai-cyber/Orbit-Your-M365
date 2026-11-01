@@ -35,7 +35,7 @@ Verify: `pwsh --version`
 ### 3. Clone and install ORBIT
 
 ```powershell
-git clone https://github.com/OrbitalSecurity/OrbitM365.git
+git clone https://github.com/OrbitalSecurity/Orbit-Your-M365.git
 cd orbit-m365
 python -m venv .venv
 .venv\Scripts\activate
@@ -80,7 +80,7 @@ brew install python@3.12
 brew install powershell
 
 # Clone and install
-git clone https://github.com/OrbitalSecurity/OrbitM365.git
+git clone https://github.com/OrbitalSecurity/Orbit-Your-M365.git
 cd orbit-m365
 python3 -m venv .venv
 source .venv/bin/activate
@@ -104,7 +104,7 @@ sudo apt install python3.12 python3.12-venv
 # PowerShell 7 — see Microsoft's package repo:
 # https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux
 
-git clone https://github.com/OrbitalSecurity/OrbitM365.git
+git clone https://github.com/OrbitalSecurity/Orbit-Your-M365.git
 cd orbit-m365
 python3 -m venv .venv
 source .venv/bin/activate
