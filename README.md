@@ -86,7 +86,7 @@ Further reading and reference tools:
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/orbit-m365.git
+git clone https://github.com/OpenSourceByReece/Orbit365.git
 cd orbit-m365
 
 # Create venv and install
@@ -396,7 +396,7 @@ Issues and pull requests are welcome. Please:
 
 **Reece Gabriel Dickson**  
 Independent Cybersecurity Research Analyst  
-[github.com/YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+[github.com/OpenSourceByReece](https://github.com/OpenSourceByReece)
 
 ---
 
