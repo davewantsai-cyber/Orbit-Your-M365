@@ -71,6 +71,6 @@ def generate_docx(ctx: ReportContext, folder: Path) -> Path:
 
     # 5. Footer
     doc.sections[0].footer.paragraphs[0].text = ctx.footer
-    out = output_path(folder, "docx", ctx.dry_run)
+    out = output_path(folder, "docx", ctx)
     doc.save(str(out))
     return out

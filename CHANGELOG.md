@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.3.0] — 2026-11-01
+
+### Added
+- Help screen (`?` key) — full-screen reference overlay: shortcuts, tool list, requirements, privacy note
+- Onboarding wizard — shown on first launch only, skippable at any step; guides through credentials and tool selection
+- Findings viewer screen — sortable/filterable DataTable with severity colour coding; row detail modal with CVEs and remediation
+- Run comparison / delta — compare any two history entries; shows score delta, severity deltas, issues resolved
+- Auto-update checker — silent background check against GitHub releases API; dim notice in home screen if newer version available
+- Terminal size warning — shown if terminal is under 100×32; "Continue anyway" option
+- `--list-tools` CLI flag — prints tool status table to stdout and exits, no TUI needed
+- GitHub Pages landing page (`docs/index.html`) — dark-themed, ASCII logo, feature cards, tools table, install block, privacy strip
+- vhs demo recording script (`demo.tape`) — record animated GIF of the TUI
+
+### Improved
+- Run screen now uses `RichLog` with 2000-line buffer and user-scrollable history
+- Report filenames now include client name slug and date: `ORBIT_Summary_Acme_Ltd_2026-11-01.pdf`
+- `pyproject.toml` entry point added — `orbit` works as a CLI command after `pip install -e .`
+
+### Tests
+- 58 → 77 passing
+
+---
+
 ## [1.2.0] — 2026-11-01
 
 ### Added

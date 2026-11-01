@@ -10,11 +10,15 @@ from orbit.core.outputs import FORMATS
 
 from orbit.tui.screens.credentials import CredentialsScreen
 from orbit.tui.screens.email_config import EmailConfigScreen
+from orbit.tui.screens.findings import FindingsScreen
+from orbit.tui.screens.help import HelpScreen
 from orbit.tui.screens.home import HomeScreen
 from orbit.tui.screens.installer import InstallerScreen
+from orbit.tui.screens.onboarding import OnboardingScreen, mark_done, should_show
 from orbit.tui.screens.output import OutputScreen
 from orbit.tui.screens.report import ReportScreen
 from orbit.tui.screens.run import RunScreen
+from orbit.tui.screens.size_warning import MIN_HEIGHT, MIN_WIDTH, SizeWarningScreen
 from orbit.tui.screens.tool_select import ToolSelectScreen
 from orbit.tui.state import SessionState
 
@@ -44,7 +48,8 @@ Screen        { background: #04060a; }
 #quotes       { width: 1fr; height: 6; min-height: 4; }
 
 /* ── Nav bar ── */
-#nav          { height: 5; width: 1fr; padding: 1 2; overflow: hidden hidden; }
+#nav          { height: 9; width: 1fr; padding: 1 2; overflow: hidden hidden; }
+#nav Horizontal { height: 3; width: 1fr; }
 Button        {
     width: 1fr;
     min-width: 0;
@@ -68,7 +73,9 @@ class OrbitApp(App):
         "credentials": CredentialsScreen, "tool_select": ToolSelectScreen,
         "installer": InstallerScreen, "output": OutputScreen,
         "run": RunScreen, "report": ReportScreen, "email": EmailConfigScreen,
+        "help": HelpScreen, "findings": FindingsScreen,
     }
+    BINDINGS = [("question_mark", "toggle_help", "Help")]
 
     def __init__(self, dry_run: bool = False) -> None:
         super().__init__()
@@ -97,5 +104,22 @@ class OrbitApp(App):
         except OSError:
             pass
 
+    def action_toggle_help(self) -> None:
+        if isinstance(self.screen, HelpScreen):
+            self.pop_screen()
+        else:
+            self.push_screen("help")
+
+    def start_session(self) -> None:
+        """Push onboarding on first run, otherwise the home screen."""
+        if should_show():
+            self.push_screen(OnboardingScreen())
+        else:
+            mark_done()
+            self.push_screen(HomeScreen())
+
     def on_mount(self) -> None:
-        self.push_screen(HomeScreen())
+        if self.size.width < MIN_WIDTH or self.size.height < MIN_HEIGHT:
+            self.push_screen(SizeWarningScreen())
+        else:
+            self.start_session()

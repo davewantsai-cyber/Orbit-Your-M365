@@ -1,20 +1,25 @@
 """Home screen — full-width responsive layout."""
 from __future__ import annotations
 
+import asyncio
 import math
 from datetime import datetime, timezone
 from rich.markup import escape
 from rich.table import Table
+from textual import work
 from textual.app import ComposeResult
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical
 from textual.screen import Screen
 from textual.widget import Widget
 from textual.widgets import Button, Footer, Static
 from rich.text import Text
 
+from orbit.core import config_store
 from orbit.core.admin_check import ADMIN_WARNING, is_elevated
+from orbit.core.update_check import check_latest
 from orbit.core.platform_check import check_platform
 from orbit.tui.banner import AnimatedBanner
+from orbit.tui.screens.findings import FindingsScreen
 
 # ── Quotes ────────────────────────────────────────────────────────────────────
 _QUOTES: list[tuple[str, str]] = [
@@ -218,6 +223,13 @@ def _tool_table(tools: list) -> Table:
     return t
 
 
+NAV_ROWS = [
+    [("Credentials", "credentials"), ("Tools", "tool_select"), ("Install", "installer"),
+     ("Output", "output"), ("Email", "email")],
+    [("Run ▶", "run"), ("Report", "report"), ("Findings", "findings"), ("Help (?)", "help")],
+]
+
+
 class HomeScreen(Screen):
     BINDINGS = [("q", "app.quit", "Quit")]
 
@@ -228,14 +240,13 @@ class HomeScreen(Screen):
             yield Static("", id="sys-info")
             yield Static("", id="dashboard")
         yield Static("", id="last-run")
+        yield Static("", id="update-notice")
         yield QuotesWidget(id="quotes")
-        with Horizontal(id="nav"):
-            for label, target in [
-                ("Credentials", "credentials"), ("Tools", "tool_select"),
-                ("Install", "installer"), ("Output", "output"),
-                ("Email", "email"), ("Run ▶", "run"), ("Report", "report"),
-            ]:
-                yield Button(label, id=f"nav-{target}")
+        with Vertical(id="nav"):
+            for row in NAV_ROWS:
+                with Horizontal():
+                    for label, target in row:
+                        yield Button(label, id=f"nav-{target}")
         yield Footer()
 
     def _refresh_dashboard(self) -> None:
@@ -263,11 +274,24 @@ class HomeScreen(Screen):
                 f"[dim]{ADMIN_WARNING}[/dim]"
             )
         self._refresh_dashboard()
+        if config_store.load()["notifications"].get("update_check", True):
+            self._check_update()
+
+    @work(exclusive=True, group="update-check")
+    async def _check_update(self) -> None:
+        latest = await asyncio.to_thread(check_latest)
+        if latest:
+            self.query_one("#update-notice", Static).update(
+                f"[dim]Update available: v{escape(latest)} — "
+                "github.com/OpenSourceByReece/OrbitSecurityM365/releases[/dim]")
 
     def on_screen_resume(self) -> None:
         self._refresh_dashboard()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         target = (event.button.id or "").removeprefix("nav-")
-        if target in self.app.SCREENS:
+        if target == "findings":
+            # fresh instance each time so it reflects the latest run
+            self.app.push_screen(FindingsScreen())
+        elif target in self.app.SCREENS:
             self.app.push_screen(target)

@@ -44,7 +44,7 @@ async def test_missing_binary_fails_cleanly(tmp_path):
 
 async def test_tui_launches_dry_run():
     app = OrbitApp(dry_run=True)
-    async with app.run_test() as pilot:
+    async with app.run_test(size=(120, 40)) as pilot:  # >= minimum size, else SizeWarningScreen
         await pilot.pause()
         assert type(app.screen).__name__ == "HomeScreen"
         assert app.state.dry_run
@@ -68,4 +68,4 @@ async def test_run_screen_dry_run_flow(tmp_path):
             if app.state.runs and "Done." in str(app.screen.query_one("#result").render()):
                 break
         assert {r.status for r in app.state.runs.values()} == {RunStatus.COMPLETE}
-        assert any(p.name == "ORBIT_Summary_DRYRUN.pdf" for p in app.state.run_folder.iterdir())
+        assert any(p.name.startswith("ORBIT_Summary_DRYRUN") and p.suffix == ".pdf" for p in app.state.run_folder.iterdir())

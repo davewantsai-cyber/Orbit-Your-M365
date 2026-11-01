@@ -6,6 +6,7 @@ from pathlib import Path
 
 from orbit.core.outputs import OutputConfig
 from orbit.core.runner import ToolRun
+from orbit.reporting.parser import Finding
 
 
 @dataclass
@@ -18,3 +19,4 @@ class SessionState:
     runs: dict[str, ToolRun] = field(default_factory=dict)
     hash_override: bool = False
     client_name: str = ""
+    findings: list[Finding] = field(default_factory=list)
