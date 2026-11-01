@@ -63,7 +63,7 @@ class EmailConfigScreen(Screen):
 
     def _read(self) -> emailer.EmailSettings:
         """Current form values; raises ValueError on bad input."""
-        q = lambda i: self.query_one(i, Input).value.strip()  # noqa: E731
+        q = lambda i: self.query_one(i, Input).value.strip()
         try:
             port = int(q("#smtp-port") or 587)
         except ValueError:

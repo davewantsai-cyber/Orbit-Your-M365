@@ -1,0 +1,14 @@
+[lint]
+ignore = [
+    "BLE001",  # blind Exception — intentional in UI/platform code
+    "I001",    # import sort — not enforced
+    "EXE001",  # shebang on non-executable — launch.py is run via python explicitly
+    "RUF012",  # mutable class var — standard Textual pattern for BINDINGS/SCREENS
+    "ISC004",  # implicit string concat in collection — intentional for long quotes
+    "S110",    # try-except-pass — intentional in UI thread callbacks
+    "PLW1510", # subprocess.run without check= — intentional, we check returncode manually
+    "SIM102",  # nested if — readability preference
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["F401", "PLW1510"]

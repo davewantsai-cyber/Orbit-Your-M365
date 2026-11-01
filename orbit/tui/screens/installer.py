@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import shutil
-import sys
 
 from textual import work
 from textual.app import ComposeResult

@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import math
-from datetime import datetime, timezone
 from rich.markup import escape
 from rich.table import Table
 from textual import work

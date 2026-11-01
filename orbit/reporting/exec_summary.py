@@ -7,8 +7,7 @@ from pathlib import Path
 from fpdf import FPDF
 
 from orbit.config import AUTHOR, ROLE, VERSION
-from orbit.reporting.context import ReportContext
-from orbit.reporting.parser import SEVERITIES, Finding
+from orbit.reporting.parser import Finding
 from orbit.reporting import scorer
 
 SEV_RGB = {
@@ -88,7 +87,7 @@ def generate_exec_summary(findings: list[Finding], out_dir: Path,
     pdf.cell(0, 7, t("M365 Security Assessment — Executive Summary"), new_x="LMARGIN", new_y="NEXT")
     txt(9, False, (20, 80, 100))
     pdf.set_xy(10, 30)
-    pdf.cell(0, 6, t(f"Orbiting your M365. Nothing escapes."), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, t("Orbiting your M365. Nothing escapes."), new_x="LMARGIN", new_y="NEXT")
 
     # Client / meta
     pdf.set_xy(10, 44)

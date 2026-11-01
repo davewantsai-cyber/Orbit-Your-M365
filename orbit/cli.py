@@ -8,28 +8,6 @@ from orbit.config import VERSION
 
 
 def print_tool_table() -> None:
-    from rich.console import Console
-    from rich.table import Table
-
-    from orbit.core.platform_check import check_platform
-    from orbit.core.tools import all_tools
-
-    info = check_platform()
-    table = Table(title=f"ORBIT v{VERSION} — Tool Status", title_justify="left")
-    for col in ("Tool", "Installed", "Compatible", "Version"):
-        table.add_column(col)
-    for tool in all_tools():
-        version = tool.installed_version()
-        if tool.compatible(info):
-            only = tool.supported_os[0].capitalize() if len(tool.supported_os) == 1 else "Yes"
-            compat_txt = f"✓ {only}"
-        else:
-            compat_txt = "✗ No"
-        table.add_row(tool.display, "✓ Yes" if version else "✗ No", compat_txt, version or "—")
-    Console().print(table)
-
-
-def print_tool_table() -> None:
     """Print a Rich table of tool install/compatibility status (no TUI)."""
     from rich.console import Console
     from rich.table import Table
