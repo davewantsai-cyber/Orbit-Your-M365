@@ -5,6 +5,7 @@ import asyncio
 import tempfile
 from pathlib import Path
 
+from rich.markup import escape
 from textual import work
 from textual.app import ComposeResult
 from textual.containers import Horizontal
@@ -54,7 +55,8 @@ class RunScreen(Screen):
                 yield Static("Pending", id=f"status-{t.name}")
                 yield ProgressBar(total=100, show_eta=False, id=f"bar-{t.name}")
                 yield Button(f"Stop {t.display}", id=f"stop-{t.name}")
-                yield RichLog(id=f"log-{t.name}", markup=False, wrap=True)
+                yield RichLog(id=f"log-{t.name}", max_lines=2000, highlight=True, markup=True,
+                              wrap=True)
         yield Static("", id="result")
         yield Static("", id="email-status")
         yield Footer()
@@ -67,8 +69,10 @@ class RunScreen(Screen):
         self.query_one(f"#bar-{n}", ProgressBar).update(progress=run.progress)
         log = self.query_one(f"#log-{n}", RichLog)
         shown = getattr(log, "_shown", 0)
+        # Follow output only while the user is at the bottom; scrolling up pauses auto-scroll.
+        follow = log.is_vertical_scroll_end
         for line in run.log[shown:]:
-            log.write(line)
+            log.write(escape(line), scroll_end=follow)  # tool output is not Rich markup
         log._shown = len(run.log)  # type: ignore[attr-defined]
 
     def _email(self, findings, written: list[Path], tools) -> bool:
@@ -113,6 +117,7 @@ class RunScreen(Screen):
         findings, written = await asyncio.to_thread(
             finalize, st.run_folder, [t.display for t in tools], st.output, st.dry_run, st.passphrase,
             st.client_name)
+        st.findings = findings
         self.query_one("#result", Static).update(
             f"[green]Done.[/green] {len(findings)} controls. Output: {st.run_folder}\n"
             + "\n".join(str(p) for p in written))

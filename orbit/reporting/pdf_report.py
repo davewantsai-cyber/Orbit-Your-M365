@@ -145,6 +145,6 @@ def generate_pdf(ctx: ReportContext, folder: Path, use_unicode: bool = True) -> 
         if pdf.get_y() < row_y:  # page break handled by auto page break
             pass
 
-    out = output_path(folder, "pdf", ctx.dry_run)
+    out = output_path(folder, "pdf", ctx)
     pdf.output(str(out))
     return out

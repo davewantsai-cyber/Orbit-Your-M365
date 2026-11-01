@@ -1,6 +1,7 @@
 """Shared report context built once and consumed by the PDF and DOCX writers."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date as _date
 from pathlib import Path
@@ -49,9 +50,21 @@ class ReportContext:
         return ", ".join(parts)
 
 
-def report_filename(stem: str, ext: str, dry_run: bool) -> str:
-    return f"{stem}{'_DRYRUN' if dry_run else ''}.{ext}"
+def client_slug(client: str) -> str:
+    """Spaces to underscores, non-alphanumerics stripped, max 24 chars."""
+    slug = re.sub(r"[^A-Za-z0-9_]", "", client.strip().replace(" ", "_"))
+    return slug[:24]
 
 
-def output_path(folder: Path, ext: str, dry_run: bool) -> Path:
-    return Path(folder) / report_filename("ORBIT_Summary", ext, dry_run)
+def report_filename(stem: str, ext: str, dry_run: bool, client: str = "",
+                    report_date: str = "") -> str:
+    """`{stem}_{DRYRUN|client_slug}_{date}.{ext}`; dry-run omits the client."""
+    day = report_date or _date.today().isoformat()
+    slug = client_slug(client)
+    parts = [stem, *(["DRYRUN"] if dry_run else [slug] if slug else []), day]
+    return f"{'_'.join(parts)}.{ext}"
+
+
+def output_path(folder: Path, ext: str, ctx: ReportContext) -> Path:
+    return Path(folder) / report_filename("ORBIT_Summary", ext, ctx.dry_run,
+                                          ctx.client_label, ctx.report_date)

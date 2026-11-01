@@ -18,7 +18,8 @@ DEFAULTS: dict = {
         "enabled": False, "smtp_host": "", "smtp_port": 587, "smtp_tls": True,
         "from_address": "", "to_addresses": [], "cc_addresses": [],
     },
-    "notifications": {"os_notify": True, "email_notify": False},
+    "notifications": {"os_notify": True, "email_notify": False, "update_check": True},
+    "app": {"first_run": True},
 }
 
 
